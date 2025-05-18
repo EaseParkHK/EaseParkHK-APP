@@ -43,7 +43,12 @@ To get started with this project, follow these steps:
    npm start
    ```
 
-4. **Open your browser:**
+4. **deploy to gh-pages:**
+   ```
+   npm run deploy
+   ```
+
+5. **Open your browser:**
    Navigate to `http://localhost:3000` to view the application.
 
 ## Features
