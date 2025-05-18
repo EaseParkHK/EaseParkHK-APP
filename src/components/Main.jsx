@@ -14,11 +14,16 @@ const VEHICLE_TYPES = [
 function Main() {
   const [carparks, setCarparks] = useState([]);
   const [favorites, setFavorites] = useState(() => JSON.parse(localStorage.getItem('favorite_carparks') || '[]'));
-  const [vehicleType, setVehicleType] = useState('privateCar');
+  const [vehicleType, setVehicleType] = useState(() => localStorage.getItem('selected_vehicle_type') || 'privateCar');
   const [showMap, setShowMap] = useState(false);
   const [mapInfo, setMapInfo] = useState({});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+
+  // Save vehicleType to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('selected_vehicle_type', vehicleType);
+  }, [vehicleType]);
 
   // Fetch carpark data
   useEffect(() => {
@@ -82,6 +87,8 @@ function Main() {
   // Filtering
   const filterCarparks = list =>
     list.filter(carpark => {
+      // Check if carpark is open
+      if (carpark.opening_status !== 'OPEN') return false;
       // Vehicle type vacancy
       const vacancy = carpark[`${vehicleType}_vacancy`];
       if (['N/A', 'none', '-1', '0'].includes(String(vacancy))) return false;
@@ -259,22 +266,12 @@ function CarparkTable({ carparks, vehicleType, onShowMap, onToggleFavorite, favo
                   </Badge>
                 </td>
                 <td>
-                  <Button
-                    variant="info"
-                    size="sm"
-                    className="me-2"
-                    onClick={() => onShowMap(carpark)}
-                  >
-                    Map
-                  </Button>
-                  <Button
-                    variant="link"
-                    size="sm"
-                    onClick={() => onToggleFavorite(carpark.park_Id)}
-                    title={favorites.includes(carpark.park_Id) ? "Remove Favorite" : "Add Favorite"}
-                  >
-                    {favorites.includes(carpark.park_Id) ? <FaStar style={{ color: '#FFD700' }} /> : <FaRegStar style={{ color: '#888' }} />}
-                  </Button>
+                  <div className="d-flex align-items-center gap-2">
+                    <Button variant="info" size="sm" onClick={() => onShowMap(carpark)}>Map</Button>
+                    <Button variant="link" size="sm" onClick={() => onToggleFavorite(carpark.park_Id)} title={favorites.includes(carpark.park_Id) ? "Remove Favorite" : "Add Favorite"}>
+                      {favorites.includes(carpark.park_Id) ? <FaStar style={{ color: '#FFD700' }} /> : <FaRegStar style={{ color: '#888' }} />}
+                    </Button>
+                  </div>
                 </td>
               </tr>
             ))}
