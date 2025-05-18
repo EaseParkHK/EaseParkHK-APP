@@ -195,9 +195,9 @@ function Main() {
 
       {/* Map Modal */}
       <Modal show={showMap} onHide={() => setShowMap(false)} size="lg" centered>
-        <Modal.Header closeButton>
+        <Modal.header closeButton>
           <Modal.Title>Carpark Location</Modal.Title>
-        </Modal.Header>
+        </Modal.header>
         <Modal.Body>
           <div>
             <strong>Name:</strong> {mapInfo.name}<br />
