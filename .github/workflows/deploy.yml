@@ -10,16 +10,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: 檢出代碼
+        uses: actions/checkout@v4 # 更新到最新版本以獲得更好支持
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
+      - name: 設置 Node.js
+        uses: actions/setup-node@v4 # 更新到最新版本
         with:
-          node-version: '14' # Specify the Node.js version
+          node-version: '18' # 升級到 Node.js 18 以解決兼容性問題
 
-      - name: Install dependencies
+      - name: 安裝依賴
         run: npm install
 
-      - name: Run deploy script
+      - name: 配置 Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+      - name: 運行部署腳本
         run: npm run deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # 確保 gh-pages 可進行身份驗證
