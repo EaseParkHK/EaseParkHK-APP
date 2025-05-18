@@ -1,23 +1,13 @@
 {
   "files": {
-    "main.css": "/easeparkhk/static/css/main.92e0ac93.chunk.css",
-    "main.js": "/easeparkhk/static/js/main.845b4af3.chunk.js",
-    "main.js.map": "/easeparkhk/static/js/main.845b4af3.chunk.js.map",
-    "runtime-main.js": "/easeparkhk/static/js/runtime-main.38838305.js",
-    "runtime-main.js.map": "/easeparkhk/static/js/runtime-main.38838305.js.map",
-    "static/css/2.7e23daa8.chunk.css": "/easeparkhk/static/css/2.7e23daa8.chunk.css",
-    "static/js/2.5b6c5513.chunk.js": "/easeparkhk/static/js/2.5b6c5513.chunk.js",
-    "static/js/2.5b6c5513.chunk.js.map": "/easeparkhk/static/js/2.5b6c5513.chunk.js.map",
+    "main.css": "/easeparkhk/static/css/main.2675714d.css",
+    "main.js": "/easeparkhk/static/js/main.677a9738.js",
     "index.html": "/easeparkhk/index.html",
-    "static/css/2.7e23daa8.chunk.css.map": "/easeparkhk/static/css/2.7e23daa8.chunk.css.map",
-    "static/css/main.92e0ac93.chunk.css.map": "/easeparkhk/static/css/main.92e0ac93.chunk.css.map",
-    "static/js/2.5b6c5513.chunk.js.LICENSE.txt": "/easeparkhk/static/js/2.5b6c5513.chunk.js.LICENSE.txt"
+    "main.2675714d.css.map": "/easeparkhk/static/css/main.2675714d.css.map",
+    "main.677a9738.js.map": "/easeparkhk/static/js/main.677a9738.js.map"
   },
   "entrypoints": [
-    "static/js/runtime-main.38838305.js",
-    "static/css/2.7e23daa8.chunk.css",
-    "static/js/2.5b6c5513.chunk.js",
-    "static/css/main.92e0ac93.chunk.css",
-    "static/js/main.845b4af3.chunk.js"
+    "static/css/main.2675714d.css",
+    "static/js/main.677a9738.js"
   ]
 }
