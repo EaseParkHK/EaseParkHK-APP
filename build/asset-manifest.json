@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/easeparkhk/static/css/main.92e0ac93.chunk.css",
-    "main.js": "/easeparkhk/static/js/main.f0cb02d2.chunk.js",
-    "main.js.map": "/easeparkhk/static/js/main.f0cb02d2.chunk.js.map",
+    "main.js": "/easeparkhk/static/js/main.0c5c936e.chunk.js",
+    "main.js.map": "/easeparkhk/static/js/main.0c5c936e.chunk.js.map",
     "runtime-main.js": "/easeparkhk/static/js/runtime-main.38838305.js",
     "runtime-main.js.map": "/easeparkhk/static/js/runtime-main.38838305.js.map",
     "static/css/2.7e23daa8.chunk.css": "/easeparkhk/static/css/2.7e23daa8.chunk.css",
@@ -18,6 +18,6 @@
     "static/css/2.7e23daa8.chunk.css",
     "static/js/2.b1396136.chunk.js",
     "static/css/main.92e0ac93.chunk.css",
-    "static/js/main.f0cb02d2.chunk.js"
+    "static/js/main.0c5c936e.chunk.js"
   ]
 }
