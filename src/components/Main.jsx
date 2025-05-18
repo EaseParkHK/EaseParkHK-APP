@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Table, Button, Form, Modal, Row, Col, Badge, InputGroup, Spinner } from 'react-bootstrap';
-
-// 加入 FontAwesome 星星圖示
+import { Container, Table, Button, Form, Modal, Row, Col, Badge, InputGroup, Spinner, ListGroup } from 'react-bootstrap';
 import { FaRegStar, FaStar } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 const VEHICLE_TYPES = [
   { value: 'privateCar', label: 'Private Car' },
@@ -217,7 +216,7 @@ function Main() {
   );
 }
 
-// 狀態 Badge 元件
+// Status Badge Component
 function StatusBadge({ status }) {
   if (status === 'OPEN')
     return <span style={{ color: 'green', fontWeight: 'bold' }}>OPEN</span>;
@@ -226,59 +225,88 @@ function StatusBadge({ status }) {
   return <span>{status}</span>;
 }
 
-// 子元件：車位表格
+// Carpark Table Component
 function CarparkTable({ carparks, vehicleType, onShowMap, onToggleFavorite, favorites }) {
   return (
-    <Table striped hover responsive className="mt-3 align-middle">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Address</th>
-          <th>Status</th>
-          <th>Vacancies</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {carparks.map(carpark => (
-          <tr key={carpark.park_Id}>
-            <td>
-              <span style={{ fontWeight: 'bold', fontSize: '1.05em' }}>{carpark.name}</span>
-            </td>
-            <td>
-              <span style={{ color: '#555' }}>{carpark.displayAddress}</span>
-            </td>
-            <td>
-              <StatusBadge status={carpark.opening_status} />
-            </td>
-            <td>
-              <Badge bg="success" style={{ fontSize: '1em' }}>
-                {carpark[`${vehicleType}_vacancy`]}
-              </Badge>
-            </td>
-            <td>
-              <Button
-                variant="info"
-                size="sm"
-                className="me-2"
-                onClick={() => onShowMap(carpark)}
-              >
-                Map
-              </Button>
-              <Button
-                variant="link"
-                size="sm"
-                style={{ color: favorites.includes(carpark.park_Id) ? '#FFD700' : '#888', fontSize: '1.5em' }}
-                onClick={() => onToggleFavorite(carpark.park_Id)}
-                title={favorites.includes(carpark.park_Id) ? "Remove Favorite" : "Add Favorite"}
-              >
-                {favorites.includes(carpark.park_Id) ? <FaStar /> : <FaRegStar />}
-              </Button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </Table>
+    <>
+      {/* Table for medium and larger screens */}
+      <div className="d-none d-md-block">
+        <Table striped hover responsive className="mt-3 align-middle">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Address</th>
+              <th>Status</th>
+              <th>Vacancies</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {carparks.map(carpark => (
+              <tr key={carpark.park_Id}>
+                <td>
+                  <Link to={`/info/${carpark.park_Id}`} style={{ fontWeight: 'bold', fontSize: '1.05em' }}>{carpark.name}</Link>
+                </td>
+                <td>
+                  <span style={{ color: '#555' }}>{carpark.displayAddress}</span>
+                </td>
+                <td>
+                  <StatusBadge status={carpark.opening_status} />
+                </td>
+                <td>
+                  <Badge bg="success" style={{ fontSize: '1em' }}>
+                    {carpark[`${vehicleType}_vacancy`]}
+                  </Badge>
+                </td>
+                <td>
+                  <Button
+                    variant="info"
+                    size="sm"
+                    className="me-2"
+                    onClick={() => onShowMap(carpark)}
+                  >
+                    Map
+                  </Button>
+                  <Button
+                    variant="link"
+                    size="sm"
+                    onClick={() => onToggleFavorite(carpark.park_Id)}
+                    title={favorites.includes(carpark.park_Id) ? "Remove Favorite" : "Add Favorite"}
+                  >
+                    {favorites.includes(carpark.park_Id) ? <FaStar style={{ color: '#FFD700' }} /> : <FaRegStar style={{ color: '#888' }} />}
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </div>
+
+      {/* ListGroup for small screens */}
+      <div className="d-md-none">
+        <ListGroup>
+          {carparks.map(carpark => (
+            <ListGroup.Item key={carpark.park_Id}>
+              <div className="d-flex justify-content-between align-items-start">
+                <div>
+                  <Link to={`/info/${carpark.park_Id}`} style={{ fontWeight: 'bold' }}>{carpark.name}</Link>
+                  <p style={{ margin: 0, color: '#555', fontSize: '0.9em' }}>{carpark.displayAddress}</p>
+                  <div>
+                    <StatusBadge status={carpark.opening_status} /> <Badge bg="success">{carpark[`${vehicleType}_vacancy`]}</Badge>
+                  </div>
+                </div>
+                <div>
+                  <Button variant="info" size="sm" onClick={() => onShowMap(carpark)}>Map</Button>
+                  <Button variant="link" size="sm" onClick={() => onToggleFavorite(carpark.park_Id)} title={favorites.includes(carpark.park_Id) ? "Remove Favorite" : "Add Favorite"}>
+                    {favorites.includes(carpark.park_Id) ? <FaStar style={{ color: '#FFD700' }} /> : <FaRegStar style={{ color: '#888' }} />}
+                  </Button>
+                </div>
+              </div>
+            </ListGroup.Item>
+          ))}
+        </ListGroup>
+      </div>
+    </>
   );
 }
 
