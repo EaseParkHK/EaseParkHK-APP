@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/easeparkhk/static/css/main.2675714d.css",
-    "main.js": "/easeparkhk/static/js/main.677a9738.js",
+    "main.css": "/easeparkhk/static/css/main.2544e43a.css",
+    "main.js": "/easeparkhk/static/js/main.7ee0a20e.js",
     "index.html": "/easeparkhk/index.html",
-    "main.2675714d.css.map": "/easeparkhk/static/css/main.2675714d.css.map",
-    "main.677a9738.js.map": "/easeparkhk/static/js/main.677a9738.js.map"
+    "main.2544e43a.css.map": "/easeparkhk/static/css/main.2544e43a.css.map",
+    "main.7ee0a20e.js.map": "/easeparkhk/static/js/main.7ee0a20e.js.map"
   },
   "entrypoints": [
-    "static/css/main.2675714d.css",
-    "static/js/main.677a9738.js"
+    "static/css/main.2544e43a.css",
+    "static/js/main.7ee0a20e.js"
   ]
 }
