@@ -195,9 +195,9 @@ function Main() {
 
       {/* Map Modal */}
       <Modal show={showMap} onHide={() => setShowMap(false)} size="lg" centered>
-        <Modal.header closeButton>
+        <Modal.Header closeButton>
           <Modal.Title>Carpark Location</Modal.Title>
-        </Modal.header>
+        </Modal.Header>
         <Modal.Body>
           <div>
             <strong>Name:</strong> {mapInfo.name}<br />
@@ -252,7 +252,9 @@ function CarparkTable({ carparks, vehicleType, onShowMap, onToggleFavorite, favo
             {carparks.map(carpark => (
               <tr key={carpark.park_Id}>
                 <td>
-                  <Link to={`/info/${carpark.park_Id}`} style={{ fontWeight: 'bold', fontSize: '1.05em' }}>{carpark.name}</Link>
+                  <Link to={`/info/${carpark.park_Id}`} style={{ fontWeight: 'bold', fontSize: '1.05em', color: '#007bff', textDecoration: 'underline', cursor: 'pointer' }}>
+                    {carpark.name}
+                  </Link>
                 </td>
                 <td>
                   <span style={{ color: '#555' }}>{carpark.displayAddress}</span>
@@ -286,7 +288,9 @@ function CarparkTable({ carparks, vehicleType, onShowMap, onToggleFavorite, favo
             <ListGroup.Item key={carpark.park_Id}>
               <div className="d-flex justify-content-between align-items-start">
                 <div>
-                  <Link to={`/info/${carpark.park_Id}`} style={{ fontWeight: 'bold' }}>{carpark.name}</Link>
+                  <Link to={`/info/${carpark.park_Id}`} style={{ fontWeight: 'bold', color: '#007bff', textDecoration: 'underline', cursor: 'pointer' }}>
+                    {carpark.name}
+                  </Link>
                   <p style={{ margin: 0, color: '#555', fontSize: '0.9em' }}>{carpark.displayAddress}</p>
                   <div>
                     <StatusBadge status={carpark.opening_status} /> <Badge bg="success">{carpark[`${vehicleType}_vacancy`]}</Badge>

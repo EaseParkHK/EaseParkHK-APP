@@ -1,18 +1,25 @@
-import React from 'react';
-import Header from './components/Header';
+import { Routes, Route, useParams } from 'react-router-dom';
 import Main from './components/Main';
+import CarparkDetail from './components/carparkdetail';
+import Header from './components/Header';
 import Footer from './components/Footer';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './styles/main.css';
+
+function CarparkDetailWrapper() {
+  const { parkId } = useParams();
+  return <CarparkDetail parkId={parkId} />;
+}
 
 function App() {
-    return (
-        <div className="App">
-            <Header />
-            <Main />
-            <Footer />
-        </div>
-    );
+  return (
+    <>
+      <Header />
+      <Routes>
+        <Route path="/" element={<Main />} />
+        <Route path="/info/:parkId" element={<CarparkDetailWrapper />} />
+      </Routes>
+      <Footer />
+    </>
+  );
 }
 
 export default App;
