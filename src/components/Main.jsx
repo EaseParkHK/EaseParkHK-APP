@@ -295,7 +295,7 @@ function CarparkTable({ carparks, vehicleType, onShowMap, onToggleFavorite, favo
                     <StatusBadge status={carpark.opening_status} /> <Badge bg="success">{carpark[`${vehicleType}_vacancy`]}</Badge>
                   </div>
                 </div>
-                <div>
+                <div className="d-flex align-items-center gap-2">
                   <Button variant="info" size="sm" onClick={() => onShowMap(carpark)}>Map</Button>
                   <Button variant="link" size="sm" onClick={() => onToggleFavorite(carpark.park_Id)} title={favorites.includes(carpark.park_Id) ? "Remove Favorite" : "Add Favorite"}>
                     {favorites.includes(carpark.park_Id) ? <FaStar style={{ color: '#FFD700' }} /> : <FaRegStar style={{ color: '#888' }} />}
