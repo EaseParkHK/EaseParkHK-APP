@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A demo project using React and React-Bootstrap for UI/UX template.",
   "main": "src/index.js",
-  "homepage": "https://easeparkhk.github.io/easeparkhk-app",
+  "homepage": "",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
@@ -16,12 +16,12 @@
     "react-bootstrap": "^2.0.0",
     "react-dom": "^17.0.2",
     "react-icons": "^5.5.0",
+    "react-router-dom": "^5.3.4",
     "react-scripts": "4.0.3"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "homepage": "",
   "bugs": {
     "url": ""
   },
