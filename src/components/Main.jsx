@@ -3,76 +3,92 @@ import { Container, Table, Button, Form, Modal, Row, Col, Badge, InputGroup, Spi
 import { FaRegStar, FaStar } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 
+// Vehicle types mapping
 const VEHICLE_TYPES = [
-  { value: 'privateCar', label: 'Private Car' },
-  { value: 'motorCycle', label: 'Motorcycle' },
-  { value: 'HGV', label: 'Heavy Goods Vehicle' },
+  { value: 'P', label: 'Private Car' },
+  { value: 'P_D', label: 'Private Car (Disabled)' },
+  { value: 'M', label: 'Motorcycle' },
   { value: 'LGV', label: 'Light Goods Vehicle' },
-  { value: 'coach', label: 'Coach' },
+  { value: 'HGV', label: 'Heavy Goods Vehicle' },
+  { value: 'COACH', label: 'Coach' },
 ];
 
 function Main() {
   const [carparks, setCarparks] = useState([]);
   const [favorites, setFavorites] = useState(() => JSON.parse(localStorage.getItem('favorite_carparks') || '[]'));
-  const [vehicleType, setVehicleType] = useState(() => localStorage.getItem('selected_vehicle_type') || 'privateCar');
+  const [vehicleType, setVehicleType] = useState(() => localStorage.getItem('selected_vehicle_type') || 'P');
   const [showMap, setShowMap] = useState(false);
   const [mapInfo, setMapInfo] = useState({});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [showOnlyOpen, setShowOnlyOpen] = useState(true);
 
-  // Save vehicleType to localStorage when it changes
+  // Save selected vehicle type to localStorage
   useEffect(() => {
     localStorage.setItem('selected_vehicle_type', vehicleType);
   }, [vehicleType]);
 
-  // Fetch carpark data
+  // Fetch car park data from APIs
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
-      const [infoRes, vacancyRes] = await Promise.all([
-        fetch('https://api.data.gov.hk/v1/carpark-info-vacancy'),
-        fetch('https://api.data.gov.hk/v1/carpark-info-vacancy?data=vacancy&vehicleTypes=privateCar,motorCycle,LGV,HGV,coach&lang=en_US'),
-      ]);
-      const infoData = await infoRes.json();
-      const vacancyData = await vacancyRes.json();
+      try {
+        const [infoRes, vacancyRes] = await Promise.all([
+          fetch('https://resource.data.one.gov.hk/td/carpark/basic_info_all.json'),
+          fetch('https://resource.data.one.gov.hk/td/carpark/vacancy_all.json'),
+        ]);
+        const infoData = await infoRes.json();
+        const vacancyData = await vacancyRes.json();
 
-      // Map park_Id to vacancy info
-      const vacancyMap = {};
-      for (const item of vacancyData.results) {
-        vacancyMap[item.park_Id] = {
-          privateCar: item.privateCar?.[0] || {},
-          motorCycle: item.motorCycle?.[0] || {},
-          LGV: item.LGV?.[0] || {},
-          HGV: item.HGV?.[0] || {},
-          coach: item.coach?.[0] || {},
-        };
+        // Build vacancy map: park_id -> { vehicle_type -> { vacancy, vacancy_type, lastupdate } }
+        const vacancyMap = {};
+        for (const item of vacancyData.car_park || []) {
+          vacancyMap[item.park_id] = {};
+          for (const vt of item.vehicle_type || []) {
+            const hourly = (vt.service_category || []).find(sc => sc.category === 'HOURLY');
+            vacancyMap[item.park_id][vt.type] = hourly
+              ? {
+                  vacancy: hourly.vacancy,
+                  vacancy_type: hourly.vacancy_type,
+                  lastupdate: hourly.lastupdate,
+                }
+              : { vacancy: 'N/A', vacancy_type: '', lastupdate: '' };
+          }
+        }
+
+        // Combine basic info with vacancy data, using English names and district
+        const combined = (infoData.car_park || []).map(carpark => {
+          const parkId = carpark.park_id;
+          const vacancy = vacancyMap[parkId] || {};
+          const result = {
+            ...carpark,
+            park_Id: parkId,
+            name: carpark.name_en,
+            displayAddress: carpark.displayAddress_en,
+            district: carpark.district_en,
+            contactNo: carpark.contactNo || 'N/A',
+            opening_status: carpark.opening_status || 'UNKNOWN',
+            latitude: carpark.latitude,
+            longitude: carpark.longitude,
+          };
+          for (const vt of VEHICLE_TYPES.map(v => v.value)) {
+            result[`${vt}_vacancy`] = vacancy[vt]?.vacancy ?? 'N/A';
+            result[`${vt}_vacancy_type`] = vacancy[vt]?.vacancy_type ?? '';
+          }
+          return result;
+        });
+
+        setCarparks(combined);
+      } catch (error) {
+        console.error('Error fetching car park data:', error);
+      } finally {
+        setLoading(false);
       }
-
-      // Combine info and vacancy
-      const combined = infoData.results.map(carpark => {
-        const parkId = carpark.park_Id;
-        const vacancy = vacancyMap[parkId] || {};
-        const result = { ...carpark, park_Id: parkId };
-        for (const vt of VEHICLE_TYPES.map(v => v.value)) {
-          result[`${vt}_vacancy`] = vacancy[vt]?.vacancy ?? 'N/A';
-          result[`${vt}_vacancy_type`] = vacancy[vt]?.vacancy_type ?? '';
-        }
-        // Example: Check for hourly charges for private cars
-        if (carpark.privateCar && carpark.privateCar.hourlyCharges) {
-          result.price = carpark.privateCar.hourlyCharges[0]?.price ?? 'N/A';
-        } else {
-          result.price = 'N/A';
-        }
-        return result;
-      });
-
-      setCarparks(combined);
-      setLoading(false);
     }
     fetchData();
   }, []);
 
-  // Favorite handling
+  // Toggle favorite status for a car park
   const toggleFavorite = parkId => {
     let newFavs;
     if (favorites.includes(parkId)) {
@@ -84,15 +100,10 @@ function Main() {
     localStorage.setItem('favorite_carparks', JSON.stringify(newFavs));
   };
 
-  // Filtering
+  // Filter car parks based on status and search
   const filterCarparks = list =>
     list.filter(carpark => {
-      // Check if carpark is open
-      if (carpark.opening_status !== 'OPEN') return false;
-      // Vehicle type vacancy
-      const vacancy = carpark[`${vehicleType}_vacancy`];
-      if (['N/A', 'none', '-1', '0'].includes(String(vacancy))) return false;
-      // Search filter
+      if (showOnlyOpen && carpark.opening_status !== 'OPEN') return false;
       if (
         search &&
         !(
@@ -108,7 +119,7 @@ function Main() {
   const favoriteCarparks = filterCarparks(carparks.filter(c => favorites.includes(c.park_Id)));
   const otherCarparks = filterCarparks(carparks.filter(c => !favorites.includes(c.park_Id)));
 
-  // Map modal
+  // Show map for a selected car park
   const handleShowMap = carpark => {
     setMapInfo(carpark);
     setShowMap(true);
@@ -118,7 +129,7 @@ function Main() {
     <Container className="mt-5">
       <h1 className="text-center mb-4">Hong Kong Parking Information</h1>
       <Row className="mb-3">
-        <Col md={6}>
+        <Col md={4}>
           <Form.Group>
             <Form.Label>Vehicle Type:</Form.Label>
             <Form.Select value={vehicleType} onChange={e => setVehicleType(e.target.value)}>
@@ -128,7 +139,7 @@ function Main() {
             </Form.Select>
           </Form.Group>
         </Col>
-        <Col md={6}>
+        <Col md={4}>
           <Form.Group>
             <Form.Label>Search (Name or Address):</Form.Label>
             <InputGroup>
@@ -144,23 +155,24 @@ function Main() {
             </InputGroup>
           </Form.Group>
         </Col>
+        <Col md={4} className="d-flex align-items-center">
+          <Form.Check
+            type="checkbox"
+            label="Show only open car parks"
+            checked={showOnlyOpen}
+            onChange={e => setShowOnlyOpen(e.target.checked)}
+          />
+        </Col>
       </Row>
 
       {loading ? (
         <div className="text-center my-5">
-          <Spinner animation="border" role="status" variant="primary" style={{ width: '3rem', height: '3rem' }}>
+          <Spinner animation="border" variant="primary" style={{ width: '3rem', height: '3rem' }}>
             <span className="visually-hidden">Loading...</span>
           </Spinner>
-          <div style={{ marginTop: 10, fontWeight: 'bold', fontSize: '1.2em', letterSpacing: '2px', color: '#007bff', animation: 'blinker 1s linear infinite' }}>
+          <div style={{ marginTop: 10, fontWeight: 'bold', fontSize: '1.2em', color: '#007bff' }}>
             Loading...
           </div>
-          <style>
-            {`
-              @keyframes blinker {
-                50% { opacity: 0.3; }
-              }
-            `}
-          </style>
         </div>
       ) : (
         <>
@@ -186,8 +198,8 @@ function Main() {
             favorites={favorites}
           />
           {favoriteCarparks.length + otherCarparks.length === 0 && (
-            <p className="text-center text-danger font-weight-bold mt-4">
-              No results found. Please adjust the filter conditions or try again.
+            <p className="text-center text-danger mt-4">
+              No results found. Try adjusting your search or filters.
             </p>
           )}
         </>
@@ -200,80 +212,112 @@ function Main() {
         </Modal.Header>
         <Modal.Body>
           <div>
-            <strong>Name:</strong> {mapInfo.name}<br />
-            <strong>Address:</strong> {mapInfo.displayAddress}<br />
+            <strong>Name:</strong> {mapInfo.name || 'N/A'}<br />
+            <strong>District:</strong> {mapInfo.district || 'N/A'}<br />
+            <strong>Address:</strong> {mapInfo.displayAddress || 'N/A'}<br />
+            <strong>Contact:</strong> {mapInfo.contactNo || 'N/A'}<br />
             <strong>Status:</strong> <StatusBadge status={mapInfo.opening_status} /><br />
-            <strong>Vacancy:</strong> {mapInfo[`${vehicleType}_vacancy`]}
+            <strong>Vacancy:</strong> {mapInfo[`${vehicleType}_vacancy`] || 'N/A'}
           </div>
-          <iframe
-            id="map"
-            title="Google Map"
-            src={mapInfo.latitude && mapInfo.longitude
-              ? `https://www.google.com/maps?q=${mapInfo.latitude},${mapInfo.longitude}&output=embed`
-              : ''}
-            width="100%"
-            height="350"
-            style={{ border: 0, marginTop: 10 }}
-            allowFullScreen=""
-            loading="lazy"
-          />
+          {mapInfo.latitude && mapInfo.longitude ? (
+            <iframe
+              title="Google Map"
+              src={`https://www.google.com/maps?q=${mapInfo.latitude},${mapInfo.longitude}&output=embed`}
+              width="100%"
+              height="350"
+              style={{ border: 0, marginTop: 10 }}
+              allowFullScreen=""
+              loading="lazy"
+            />
+          ) : (
+            <p>Location not available</p>
+          )}
         </Modal.Body>
       </Modal>
     </Container>
   );
 }
 
-// Status Badge Component
+// Status badge component
 function StatusBadge({ status }) {
-  if (status === 'OPEN')
-    return <span style={{ color: 'green', fontWeight: 'bold' }}>OPEN</span>;
-  if (status === 'CLOSED')
-    return <span style={{ background: 'red', color: 'white', padding: '2px 8px', borderRadius: 4, fontWeight: 'bold' }}>CLOSED</span>;
-  return <span>{status}</span>;
+  if (status === 'OPEN') return <span style={{ color: 'green', fontWeight: 'bold' }}>OPEN</span>;
+  if (status === 'CLOSED') return <span style={{ background: 'red', color: 'white', padding: '2px 8px', borderRadius: 4, fontWeight: 'bold' }}>CLOSED</span>;
+  return <span style={{ color: 'gray' }}>UNKNOWN</span>;
 }
 
-// Carpark Table Component
+// Carpark table component with sorting
 function CarparkTable({ carparks, vehicleType, onShowMap, onToggleFavorite, favorites }) {
+  const [sortColumn, setSortColumn] = useState('name');
+  const [sortDirection, setSortDirection] = useState('asc');
+
+  const handleSort = column => {
+    const newDirection = sortColumn === column && sortDirection === 'asc' ? 'desc' : 'asc';
+    setSortColumn(column);
+    setSortDirection(newDirection);
+  };
+
+  const sortedCarparks = [...carparks].sort((a, b) => {
+    let aValue = a[sortColumn];
+    let bValue = b[sortColumn];
+
+    if (sortColumn === 'vacancy') {
+      aValue = a[`${vehicleType}_vacancy`] === 'N/A' ? -Infinity : parseInt(a[`${vehicleType}_vacancy`], 10);
+      bValue = b[`${vehicleType}_vacancy`] === 'N/A' ? -Infinity : parseInt(b[`${vehicleType}_vacancy`], 10);
+    }
+
+    if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+    if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+    return 0;
+  });
+
   return (
     <>
-      {/* Table for medium and larger screens */}
+      {/* Desktop Table */}
       <div className="d-none d-md-block">
         <Table striped hover responsive className="mt-3 align-middle">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Address</th>
-              <th>Status</th>
-              <th>Vacancies</th>
+              <th onClick={() => handleSort('name')} style={{ cursor: 'pointer' }}>
+                Name {sortColumn === 'name' && (sortDirection === 'asc' ? '↑' : '↓')}
+              </th>
+              <th onClick={() => handleSort('district')} style={{ cursor: 'pointer' }}>
+                District {sortColumn === 'district' && (sortDirection === 'asc' ? '↑' : '↓')}
+              </th>
+              <th onClick={() => handleSort('displayAddress')} style={{ cursor: 'pointer' }}>
+                Address {sortColumn === 'displayAddress' && (sortDirection === 'asc' ? '↑' : '↓')}
+              </th>
+              <th onClick={() => handleSort('opening_status')} style={{ cursor: 'pointer' }}>
+                Status {sortColumn === 'opening_status' && (sortDirection === 'asc' ? '↑' : '↓')}
+              </th>
+              <th onClick={() => handleSort('vacancy')} style={{ cursor: 'pointer' }}>
+                Vacancy {sortColumn === 'vacancy' && (sortDirection === 'asc' ? '↑' : '↓')}
+              </th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {carparks.map(carpark => (
+            {sortedCarparks.map(carpark => (
               <tr key={carpark.park_Id}>
                 <td>
-                  <Link to={`/info/${carpark.park_Id}`} style={{ fontWeight: 'bold', fontSize: '1.05em', color: '#007bff', textDecoration: 'underline', cursor: 'pointer' }}>
+                  <Link to={`/info/${carpark.park_Id}`} style={{ fontWeight: 'bold', color: '#007bff', textDecoration: 'underline' }}>
                     {carpark.name}
                   </Link>
                 </td>
+                <td>{carpark.district}</td>
+                <td>{carpark.displayAddress}</td>
+                <td><StatusBadge status={carpark.opening_status} /></td>
                 <td>
-                  <span style={{ color: '#555' }}>{carpark.displayAddress}</span>
+                  {carpark[`${vehicleType}_vacancy`] !== 'N/A' ? (
+                    <Badge bg="success">{carpark[`${vehicleType}_vacancy`]}</Badge>
+                  ) : (
+                    <Badge bg="secondary">N/A</Badge>
+                  )}
                 </td>
                 <td>
-                  <StatusBadge status={carpark.opening_status} />
-                </td>
-                <td>
-                  <Badge bg="success" style={{ fontSize: '1em' }}>
-                    {carpark[`${vehicleType}_vacancy`]}
-                  </Badge>
-                </td>
-                <td>
-                  <div className="d-flex align-items-center gap-2">
-                    <Button variant="info" size="sm" onClick={() => onShowMap(carpark)}>Map</Button>
-                    <Button variant="link" size="sm" onClick={() => onToggleFavorite(carpark.park_Id)} title={favorites.includes(carpark.park_Id) ? "Remove Favorite" : "Add Favorite"}>
-                      {favorites.includes(carpark.park_Id) ? <FaStar style={{ color: '#FFD700' }} /> : <FaRegStar style={{ color: '#888' }} />}
-                    </Button>
-                  </div>
+                  <Button variant="info" size="sm" onClick={() => onShowMap(carpark)}>Map</Button>{' '}
+                  <Button variant="link" size="sm" onClick={() => onToggleFavorite(carpark.park_Id)}>
+                    {favorites.includes(carpark.park_Id) ? <FaStar style={{ color: '#FFD700' }} /> : <FaRegStar />}
+                  </Button>
                 </td>
               </tr>
             ))}
@@ -281,25 +325,30 @@ function CarparkTable({ carparks, vehicleType, onShowMap, onToggleFavorite, favo
         </Table>
       </div>
 
-      {/* ListGroup for small screens */}
+      {/* Mobile ListGroup */}
       <div className="d-md-none">
         <ListGroup>
-          {carparks.map(carpark => (
+          {sortedCarparks.map(carpark => (
             <ListGroup.Item key={carpark.park_Id}>
               <div className="d-flex justify-content-between align-items-start">
                 <div>
-                  <Link to={`/info/${carpark.park_Id}`} style={{ fontWeight: 'bold', color: '#007bff', textDecoration: 'underline', cursor: 'pointer' }}>
-                    {carpark.name}
+                  <Link to={`/info/${carpark.park_Id}`} style={{ fontWeight: 'bold', color: '#007bff', textDecoration: 'underline' }}>
+                    {carpark.name} ({carpark.district})
                   </Link>
                   <p style={{ margin: 0, color: '#555', fontSize: '0.9em' }}>{carpark.displayAddress}</p>
                   <div>
-                    <StatusBadge status={carpark.opening_status} /> <Badge bg="success">{carpark[`${vehicleType}_vacancy`]}</Badge>
+                    <StatusBadge status={carpark.opening_status} />{' '}
+                    {carpark[`${vehicleType}_vacancy`] !== 'N/A' ? (
+                      <Badge bg="success">{carpark[`${vehicleType}_vacancy`]}</Badge>
+                    ) : (
+                      <Badge bg="secondary">N/A</Badge>
+                    )}
                   </div>
                 </div>
-                <div className="d-flex align-items-center gap-2">
+                <div className="d-flex gap-2">
                   <Button variant="info" size="sm" onClick={() => onShowMap(carpark)}>Map</Button>
-                  <Button variant="link" size="sm" onClick={() => onToggleFavorite(carpark.park_Id)} title={favorites.includes(carpark.park_Id) ? "Remove Favorite" : "Add Favorite"}>
-                    {favorites.includes(carpark.park_Id) ? <FaStar style={{ color: '#FFD700' }} /> : <FaRegStar style={{ color: '#888' }} />}
+                  <Button variant="link" size="sm" onClick={() => onToggleFavorite(carpark.park_Id)}>
+                    {favorites.includes(carpark.park_Id) ? <FaStar style={{ color: '#FFD700' }} /> : <FaRegStar />}
                   </Button>
                 </div>
               </div>
