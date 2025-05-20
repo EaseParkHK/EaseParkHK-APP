@@ -1,15 +1,57 @@
 import React, { useState, useEffect } from 'react';
 import { Navbar, Nav, NavDropdown, Button, Container, Dropdown } from 'react-bootstrap';
-import { FaGlobe } from 'react-icons/fa';
+import { FaGlobe, FaMoon, FaSun } from 'react-icons/fa';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+// 自訂 dark mode 樣式
+const darkStyles = `
+  body.dark-mode {
+    background: #181a1b !important;
+    color: #e0e0e0 !important;
+    transition: background 0.3s, color 0.3s;
+  }
+  .navbar-dark {
+    background: #23272b !important;
+    border-bottom: 1px solid #222 !important;
+  }
+  .navbar-dark .navbar-brand, 
+  .navbar-dark .nav-link, 
+  .navbar-dark .dropdown-toggle, 
+  .navbar-dark .dropdown-item {
+    color: #e0e0e0 !important;
+  }
+  .navbar-dark .dropdown-menu {
+    background: #23272b !important;
+    border-color: #333 !important;
+  }
+  .navbar-dark .dropdown-item:hover, 
+  .navbar-dark .dropdown-item:focus {
+    background: #343a40 !important;
+    color: #fff !important;
+  }
+  .night-mode-icon {
+    font-size: 1.2em;
+    vertical-align: middle;
+  }
+  .btn-outline-secondary {
+    border-color: #666 !important;
+    color: #e0e0e0 !important;
+    background: transparent !important;
+  }
+  .btn-outline-secondary:hover, .btn-outline-secondary:focus {
+    background: #343a40 !important;
+    color: #fff !important;
+    border-color: #888 !important;
+  }
+`;
+
+// 多語言標籤
 const LANGS = [
   { key: 'en', label: 'English' },
   { key: 'tc', label: '繁' },
   { key: 'sc', label: '简' },
 ];
 
-// 多語言標籤
 const LABELS = {
   en: {
     districts: 'Districts',
@@ -54,6 +96,31 @@ const Header = ({
   useEffect(() => {
     setLang(currentLang || localStorage.getItem('lang') || 'en');
   }, [currentLang]);
+
+  // 控制 body class
+  useEffect(() => {
+    if (darkMode) {
+      document.body.classList.add('dark-mode');
+    } else {
+      document.body.classList.remove('dark-mode');
+    }
+    // 清理
+    return () => document.body.classList.remove('dark-mode');
+  }, [darkMode]);
+
+  // 注入 dark mode 樣式
+  useEffect(() => {
+    let styleTag = document.getElementById('dark-mode-style');
+    if (!styleTag) {
+      styleTag = document.createElement('style');
+      styleTag.id = 'dark-mode-style';
+      document.head.appendChild(styleTag);
+    }
+    styleTag.innerHTML = darkStyles;
+    return () => {
+      if (styleTag) styleTag.innerHTML = '';
+    };
+  }, []);
 
   const handleLangChange = (newLang) => {
     setLang(newLang);
@@ -119,13 +186,22 @@ const Header = ({
               variant="outline-secondary"
               className="ms-2"
               onClick={onThemeToggle}
-              title="Toggle dark mode"
+              title="切換深色模式"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '6px 10px',
+                borderRadius: '50%',
+                boxShadow: darkMode ? '0 2px 8px #0002' : '0 2px 8px #0001',
+                transition: 'background 0.2s, box-shadow 0.2s',
+              }}
             >
-              <i
-                className={`glyphicon ${
-                  darkMode ? 'glyphicon-sun' : 'glyphicon-adjust'
-                } night-mode-icon`}
-              />
+              {darkMode ? (
+                <FaSun className="night-mode-icon" color="#ffd700" />
+              ) : (
+                <FaMoon className="night-mode-icon" color="#222" />
+              )}
             </Button>
           </Nav>
         </Navbar.Collapse>

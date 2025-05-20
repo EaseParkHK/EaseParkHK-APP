@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import Main from './components/Main';
-// ...其他 import...
+import CarparkDetail from './components/carparkdetail';
+import { Routes, Route } from 'react-router-dom'; // 不要再 import Router
 
 function App() {
   const [darkMode, setDarkMode] = useState(localStorage.getItem('darkMode') === 'enabled');
@@ -20,8 +21,10 @@ function App() {
         onThemeToggle={() => setDarkMode((prev) => !prev)}
         darkMode={darkMode}
       />
-      <Main lang={lang} darkMode={darkMode} />
-      {/* 其他頁面也傳 darkMode */}
+      <Routes>
+        <Route path="/" element={<Main lang={lang} darkMode={darkMode} />} />
+        <Route path="/info/:park_id" element={<CarparkDetail lang={lang} />} />
+      </Routes>
     </>
   );
 }
