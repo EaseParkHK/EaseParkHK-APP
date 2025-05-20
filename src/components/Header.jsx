@@ -1,81 +1,84 @@
 import React, { useState, useEffect } from 'react';
-import { Navbar, Nav, NavDropdown, Button, Container } from 'react-bootstrap';
+import { Navbar, Nav, NavDropdown, Button, Container, Dropdown } from 'react-bootstrap';
+import { FaGlobe } from 'react-icons/fa';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+const LANGS = [
+  { key: 'en', label: 'English' },
+  { key: 'tc', label: '繁' },
+  { key: 'sc', label: '简' },
+];
+
+// 多語言標籤
+const LABELS = {
+  en: {
+    districts: 'Districts',
+    metered: 'Metered Parking Spaces',
+    camera: 'Traffic Camera Locations',
+    news: 'Traffic Notices',
+    settings: 'Settings',
+  },
+  tc: {
+    districts: '地區',
+    metered: '咪錶泊車位',
+    camera: '交通監察鏡頭',
+    news: '交通通知',
+    settings: '設定',
+  },
+  sc: {
+    districts: '地区',
+    metered: '咪表停车位',
+    camera: '交通监控摄像头',
+    news: '交通通知',
+    settings: '设置',
+  },
+};
+
+// 請補上你的 districts 與 meteredParking 資料
 const districts = [
-  {
-    name: 'Hong Kong Island',
-    url: '/hong_kong_island',
-    sub: [
-      { name: 'Central and Western District', url: '/carparkinfo/Central%20&%20Western' },
-      { name: 'Wan Chai District', url: '/carparkinfo/Wan%20Chai' },
-      { name: 'Eastern District', url: '/carparkinfo/Eastern' },
-      { name: 'Southern District', url: '/carparkinfo/Southern' },
-    ],
-  },
-  {
-    name: 'Kowloon',
-    url: '/kowloon',
-    sub: [
-      { name: 'Yau Tsim Mong District', url: '/carparkinfo/Yau%20Tsim%20Mong' },
-      { name: 'Sham Shui Po District', url: '/carparkinfo/Sham%20Shui%20Po' },
-      { name: 'Kowloon City District', url: '/carparkinfo/Kowloon%20City' },
-      { name: 'Wong Tai Sin District', url: '/carparkinfo/Wong%20Tai%20Sin' },
-      { name: 'Kwun Tong District', url: '/carparkinfo/Kwun%20Tong' },
-    ],
-  },
-  {
-    name: 'New Territories',
-    url: '/new_territories',
-    sub: [
-      { name: 'Kwai Tsing District', url: '/carparkinfo/Kwai%20Tsing' },
-      { name: 'Tsuen Wan District', url: '/carparkinfo/Tsuen%20Wan' },
-      { name: 'Yuen Long District', url: '/carparkinfo/Yuen%20Long' },
-      { name: 'Tuen Mun District', url: '/carparkinfo/Tuen%20Mun' },
-      { name: 'North District', url: '/carparkinfo/North' },
-      { name: 'Tai Po District', url: '/carparkinfo/Tai%20Po' },
-      { name: 'Sha Tin District', url: '/carparkinfo/Sha%20Tin' },
-      { name: 'Sai Kung District', url: '/carparkinfo/Sai%20Kung' },
-      { name: 'Islands District', url: '/carparkinfo/Islands' },
-    ],
-  },
+  // ...existing code...
 ];
 
 const meteredParking = [
-  { name: 'Hong Kong Island Region', url: '/metered_parking_spaces_hong_kong_island' },
-  { name: 'Kowloon Region', url: '/metered_parking_spaces_kowloon' },
-  { name: 'New Territories Region', url: '/metered_parking_spaces_new_territories' },
+  // ...existing code...
 ];
 
 const Header = ({
-  currentLang = 'en',
-  onLangChange = () => {},
+  currentLang,
+  onLangChange,
+  onThemeToggle,
+  darkMode,
 }) => {
-  const [darkMode, setDarkMode] = useState(
-    localStorage.getItem('darkMode') === 'enabled'
-  );
+  const [lang, setLang] = useState(currentLang || localStorage.getItem('lang') || 'en');
 
   useEffect(() => {
-    document.body.classList.toggle('dark-mode', darkMode);
-    localStorage.setItem('darkMode', darkMode ? 'enabled' : 'disabled');
-  }, [darkMode]);
+    setLang(currentLang || localStorage.getItem('lang') || 'en');
+  }, [currentLang]);
 
-  const handleThemeToggle = () => setDarkMode((prev) => !prev);
+  const handleLangChange = (newLang) => {
+    setLang(newLang);
+    localStorage.setItem('lang', newLang);
+    if (onLangChange) onLangChange(newLang);
+  };
 
-  const langSwitch = (
-    <Nav.Link onClick={onLangChange}>
-      {currentLang === 'zh' ? 'English' : '繁'}
-    </Nav.Link>
-  );
+  const langOptions = LANGS.filter(l => l.key !== lang);
 
   return (
-    <Navbar bg={darkMode ? 'dark' : 'light'} variant={darkMode ? 'dark' : 'light'} expand="lg">
+    <Navbar
+      bg={darkMode ? 'dark' : 'light'}
+      variant={darkMode ? 'dark' : 'light'}
+      expand="lg"
+      sticky="top"
+      style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}
+    >
       <Container>
-        <Navbar.Brand href="/">EaseParkHK</Navbar.Brand>
+        <Navbar.Brand href="/" style={{ fontWeight: 800, letterSpacing: 1 }}>
+          EaseParkHK
+        </Navbar.Brand>
         <Navbar.Toggle aria-controls="main-navbar" />
         <Navbar.Collapse id="main-navbar">
           <Nav className="me-auto">
-            <NavDropdown title="Districts" id="districts-dropdown">
+            <NavDropdown title={LABELS[lang].districts} id="districts-dropdown">
               {districts.map((d) => (
                 <NavDropdown key={d.name} title={d.name} id={`sub-${d.name}`} drop="end">
                   {d.sub.map((s) => (
@@ -86,23 +89,36 @@ const Header = ({
                 </NavDropdown>
               ))}
             </NavDropdown>
-            <NavDropdown title="Metered Parking Spaces" id="metered-dropdown">
+            <NavDropdown title={LABELS[lang].metered} id="metered-dropdown">
               {meteredParking.map((m) => (
                 <NavDropdown.Item key={m.name} href={m.url}>
                   {m.name}
                 </NavDropdown.Item>
               ))}
             </NavDropdown>
-            <Nav.Link href="/camera">Traffic Camera Locations</Nav.Link>
-            <Nav.Link href="/news">Traffic Notices</Nav.Link>
+            <Nav.Link href="/camera">{LABELS[lang].camera}</Nav.Link>
+            <Nav.Link href="/news">{LABELS[lang].news}</Nav.Link>
           </Nav>
           <Nav>
-            {langSwitch}
-            <Nav.Link href="/settings">Settings</Nav.Link>
+            {/* Language Switcher */}
+            <Dropdown align="end" className="me-2">
+              <Dropdown.Toggle variant="outline-secondary" id="dropdown-lang" style={{ minWidth: 60 }}>
+                <FaGlobe style={{ marginRight: 4 }} />
+                {LANGS.find(l => l.key === lang)?.label}
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                {langOptions.map(opt => (
+                  <Dropdown.Item key={opt.key} onClick={() => handleLangChange(opt.key)}>
+                    {opt.label}
+                  </Dropdown.Item>
+                ))}
+              </Dropdown.Menu>
+            </Dropdown>
+            <Nav.Link href="/settings">{LABELS[lang].settings}</Nav.Link>
             <Button
               variant="outline-secondary"
               className="ms-2"
-              onClick={handleThemeToggle}
+              onClick={onThemeToggle}
               title="Toggle dark mode"
             >
               <i

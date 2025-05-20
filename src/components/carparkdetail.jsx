@@ -115,18 +115,6 @@ const CarparkDetail = ({ parkId }) => {
               }}
             />
           )}
-          <Button
-            variant="outline-primary"
-            className="mt-2"
-            id="view-map-button"
-            onClick={() => {
-              const el = document.getElementById('map-container');
-              if (el) el.scrollIntoView({ behavior: 'smooth' });
-            }}
-            style={{ width: '100%' }}
-          >
-            View on Map
-          </Button>
         </Col>
         <Col md={8}>
           <h1 style={{ fontWeight: 'bold', color: '#007bff' }}>{carpark.name}</h1>
