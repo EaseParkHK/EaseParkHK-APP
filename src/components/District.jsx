@@ -75,11 +75,39 @@ function normalizeRegionName(name) {
     .trim();
 }
 
+const DISTRICT_URL_MAP = {
+  'Central-Western': 'Central & Western',
+  'Wan-Chai': 'Wan Chai',
+  'Eastern': 'Eastern',
+  'Southern': 'Southern',
+  'Yau-Tsim-Mong': 'Yau Tsim Mong',
+  'Sham-Shui-Po': 'Sham Shui Po',
+  'Kowloon-City': 'Kowloon City',
+  'Wong-Tai-Sin': 'Wong Tai Sin',
+  'Kwun-Tong': 'Kwun Tong',
+  'Kwai-Tsing': 'Kwai Tsing',
+  'Tsuen-Wan': 'Tsuen Wan',
+  'Yuen-Long': 'Yuen Long',
+  'Tuen-Mun': 'Tuen Mun',
+  'North': 'North',
+  'Tai-Po': 'Tai Po',
+  'Sha-Tin': 'Sha Tin',
+  'Sai-Kung': 'Sai Kung',
+  'Islands': 'Islands',
+};
+
+// 修改 normalizeDistrictName，優先用對照表
 function normalizeDistrictName(name) {
-  // decode, 去除多餘空格，並轉為 title case
+  const decoded = decodeURIComponent(name).replace(/\s+/g, '-');
+  if (DISTRICT_URL_MAP[decoded]) {
+    return DISTRICT_URL_MAP[decoded];
+  }
+  // fallback: 原本的處理
   return toTitleCase(
     name
+      .replace(/-/g, ' ')
       .replace(/%20/g, ' ')
+      .replace(/%26|&amp;/gi, '&')
       .replace(/\s+/g, ' ')
       .trim()
   );

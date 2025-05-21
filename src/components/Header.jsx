@@ -22,8 +22,8 @@ const regions = [
     label: (lang) => LABELS[lang].hkIsland,
     to: '/district/hong_kong_island',
     districts: [
-      { key: 'central', label: (lang) => LABELS[lang].central, to: '/district/Central%20&%20Western' },
-      { key: 'wanchai', label: (lang) => LABELS[lang].wanchai, to: '/district/Wan%20Chai' },
+      { key: 'central', label: (lang) => LABELS[lang].central, to: '/district/Central-Western' },
+      { key: 'wanchai', label: (lang) => LABELS[lang].wanchai, to: '/district/Wan-Chai' },
       { key: 'eastern', label: (lang) => LABELS[lang].eastern, to: '/district/Eastern' },
       { key: 'southern', label: (lang) => LABELS[lang].southern, to: '/district/Southern' },
     ],
@@ -33,11 +33,11 @@ const regions = [
     label: (lang) => LABELS[lang].kowloon,
     to: '/district/kowloon',
     districts: [
-      { key: 'ytm', label: (lang) => LABELS[lang].ytm, to: '/district/Yau%20Tsim%20Mong' },
-      { key: 'ssp', label: (lang) => LABELS[lang].ssp, to: '/district/Sham%20Shui%20Po' },
-      { key: 'kc', label: (lang) => LABELS[lang].kc, to: '/district/Kowloon%20City' },
-      { key: 'wts', label: (lang) => LABELS[lang].wts, to: '/district/Wong%20Tai%20Sin' },
-      { key: 'kt', label: (lang) => LABELS[lang].kt, to: '/district/Kwun%20Tong' },
+      { key: 'ytm', label: (lang) => LABELS[lang].ytm, to: '/district/Yau-Tsim-Mong' },
+      { key: 'ssp', label: (lang) => LABELS[lang].ssp, to: '/district/Sham-Shui-Po' },
+      { key: 'kc', label: (lang) => LABELS[lang].kc, to: '/district/Kowloon-City' },
+      { key: 'wts', label: (lang) => LABELS[lang].wts, to: '/district/Wong-Tai-Sin' },
+      { key: 'kt', label: (lang) => LABELS[lang].kt, to: '/district/Kwun-Tong' },
     ],
   },
   {
@@ -45,25 +45,25 @@ const regions = [
     label: (lang) => LABELS[lang].nt,
     to: '/district/new_territories',
     districts: [
-      { key: 'kts', label: (lang) => LABELS[lang].kts, to: '/district/Kwai%20Tsing' },
-      { key: 'tw', label: (lang) => LABELS[lang].tw, to: '/district/Tsuen%20Wan' },
-      { key: 'yl', label: (lang) => LABELS[lang].yl, to: '/district/Yuen%20Long' },
-      { key: 'tm', label: (lang) => LABELS[lang].tm, to: '/district/Tuen%20Mun' },
+      { key: 'kts', label: (lang) => LABELS[lang].kts, to: '/district/Kwai-Tsing' },
+      { key: 'tw', label: (lang) => LABELS[lang].tw, to: '/district/Tsuen-Wan' },
+      { key: 'yl', label: (lang) => LABELS[lang].yl, to: '/district/Yuen-Long' },
+      { key: 'tm', label: (lang) => LABELS[lang].tm, to: '/district/Tuen-Mun' },
       { key: 'north', label: (lang) => LABELS[lang].north, to: '/district/North' },
-      { key: 'tp', label: (lang) => LABELS[lang].tp, to: '/district/Tai%20Po' },
-      { key: 'st', label: (lang) => LABELS[lang].st, to: '/district/Sha%20Tin' },
-      { key: 'sk', label: (lang) => LABELS[lang].sk, to: '/district/Sai%20Kung' },
+      { key: 'tp', label: (lang) => LABELS[lang].tp, to: '/district/Tai-Po' },
+      { key: 'st', label: (lang) => LABELS[lang].st, to: '/district/Sha-Tin' },
+      { key: 'sk', label: (lang) => LABELS[lang].sk, to: '/district/Sai-Kung' },
       { key: 'islands', label: (lang) => LABELS[lang].islands, to: '/district/Islands' },
     ],
-  },
+  }, // <--- 這裡要加逗號
 ];
 
 const Header = ({
-  currentLang,
-  onLangChange,
-  onThemeToggle,
-  darkMode,
-}) => {
+    currentLang,
+    onLangChange,
+    onThemeToggle,
+    darkMode,
+  }) => {
   const [lang, setLang] = useState(currentLang || localStorage.getItem('lang') || 'en');
   const [showOffcanvas, setShowOffcanvas] = useState(false);
 
