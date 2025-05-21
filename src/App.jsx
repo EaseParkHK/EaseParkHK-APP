@@ -16,6 +16,11 @@ function App() {
   }, [darkMode]);
 
   useEffect(() => {
+    if (lang === 'en') {
+      document.title = 'EaseParkHK';
+    } else {
+      document.title = 'EaseParkHK - 泊易香港';
+    }
     localStorage.setItem('lang', lang);
   }, [lang]);
 
@@ -30,19 +35,16 @@ function App() {
       <Routes>
         <Route path="/" element={<Main lang={lang} darkMode={darkMode} />} />
         <Route path="/info/:park_id" element={<CarparkDetail lang={lang} />} />
-        <Route
-          path="/settings"
-          element={
-            <Settings
-              lang={lang}
-              onLangChange={setLang}
-              darkMode={darkMode}
-              onThemeToggle={() => setDarkMode((prev) => !prev)}
-            />
-          }
-        />
-        <Route path="/district/:district" element={<District />} />
-        <Route path="/district/:region" element={<District />} />
+        <Route path="/settings" element={
+          <Settings
+            lang={lang}
+            onLangChange={setLang}
+            darkMode={darkMode}
+            onThemeToggle={() => setDarkMode((prev) => !prev)}
+          />
+        } />
+        <Route path="/district/:region" element={<District lang={lang} />} />
+        <Route path="/district/:district" element={<District lang={lang} />} />
       </Routes>
     </>
   );

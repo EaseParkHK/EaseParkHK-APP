@@ -30,6 +30,24 @@ const REGION_DISTRICTS = {
   ],
 };
 
+const REGION_TITLE = {
+  hong_kong_island: {
+    en: 'Hong Kong Island Parking Information',
+    tc: '香港島停車場資訊',
+    sc: '香港岛停车场资讯',
+  },
+  kowloon: {
+    en: 'Kowloon Parking Information',
+    tc: '九龍停車場資訊',
+    sc: '九龙停车场资讯',
+  },
+  new_territories: {
+    en: 'New Territories Parking Information',
+    tc: '新界停車場資訊',
+    sc: '新界停车场资讯',
+  },
+};
+
 const DISTRICT_LABELS = {
   'Central & Western': { en: 'Central & Western', tc: '中西區', sc: '中西区' },
   'Wan Chai': { en: 'Wan Chai', tc: '灣仔區', sc: '湾仔区' },
@@ -113,28 +131,25 @@ function normalizeDistrictName(name) {
   );
 }
 
-function District() {
+function District({ lang: propLang }) {
   // 支援 /district/:region 及 /district/:districtName
   const params = useParams();
-  const [lang, setLang] = useState(localStorage.getItem('lang') || 'en');
+  const lang = propLang || localStorage.getItem('lang') || 'en';
   const [districts, setDistricts] = useState([]);
   const [title, setTitle] = useState('');
-
-  useEffect(() => {
-    setLang(localStorage.getItem('lang') || 'en');
-  }, []);
 
   useEffect(() => {
     // region 支援底線與空格
     if (params.region) {
       let regionKey = params.region;
-      // 支援 "hong kong island" 或 "hong_kong_island"
       if (!REGION_DISTRICTS[regionKey]) {
         regionKey = normalizeRegionName(regionKey);
       }
       if (REGION_DISTRICTS[regionKey]) {
         setDistricts(REGION_DISTRICTS[regionKey]);
+        // 根據語言顯示正確標題
         setTitle(
+          REGION_TITLE[regionKey]?.[lang] ||
           `${REGION_LABELS[regionKey]?.[lang] || regionKey.replace(/_/g, ' ')} Parking Information`
         );
         return;

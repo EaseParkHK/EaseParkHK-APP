@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/easeparkhk/static/css/main.8d3967d1.css",
+    "main.js": "/easeparkhk/static/js/main.cc8d6f0b.js",
+    "index.html": "/easeparkhk/index.html",
+    "main.8d3967d1.css.map": "/easeparkhk/static/css/main.8d3967d1.css.map",
+    "main.cc8d6f0b.js.map": "/easeparkhk/static/js/main.cc8d6f0b.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.8d3967d1.css",
+    "static/js/main.cc8d6f0b.js"
+  ]
+}

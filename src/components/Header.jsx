@@ -55,7 +55,7 @@ const regions = [
       { key: 'sk', label: (lang) => LABELS[lang].sk, to: '/district/Sai-Kung' },
       { key: 'islands', label: (lang) => LABELS[lang].islands, to: '/district/Islands' },
     ],
-  }, // <--- 這裡要加逗號
+  },
 ];
 
 const Header = ({
@@ -76,6 +76,9 @@ const Header = ({
     localStorage.setItem('lang', newLang);
     if (onLangChange) onLangChange(newLang);
   };
+
+  // 根據語言顯示品牌名稱
+  const brandName = lang === 'en' ? 'EaseParkHK' : 'EaseParkHK - 泊易香港';
 
   // 桌面二層下拉
   const renderDesktopDistricts = (
@@ -125,12 +128,11 @@ const Header = ({
         <Container>
           <Navbar.Brand as={Link} to="/">
             <FaCar style={{ marginRight: 8, color: '#0d6efd' }} />
-            EaseParkHK
+            {brandName}
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="main-navbar" onClick={() => setShowOffcanvas(true)} />
           <Navbar.Collapse id="main-navbar" className="d-none d-lg-flex">
             <Nav className="me-auto">
-              <Nav.Link as={Link} to="/">{LABELS[lang].home}</Nav.Link>
               {renderDesktopDistricts}
               <Nav.Link as={Link} to="/news">{LABELS[lang].news}</Nav.Link>
               <Nav.Link as={Link} to="/camera">{LABELS[lang].camera}</Nav.Link>
@@ -167,7 +169,7 @@ const Header = ({
         <Offcanvas.Header closeButton>
           <Offcanvas.Title>
             <FaCar style={{ marginRight: 8, color: '#0d6efd' }} />
-            EaseParkHK
+            {brandName}
           </Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body>
