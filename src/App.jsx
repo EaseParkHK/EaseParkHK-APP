@@ -4,6 +4,7 @@ import Main from './components/Main';
 import CarparkDetail from './components/Carparkdetail';
 import Settings from './components/Settings';
 import District from './components/District';
+import News from './components/News';
 import { Routes, Route } from 'react-router-dom';
 
 function App() {
@@ -45,6 +46,7 @@ function App() {
         } />
         <Route path="/district/:region" element={<District lang={lang} />} />
         <Route path="/district/:district" element={<District lang={lang} />} />
+        <Route path="/news" element={<News lang={lang} />} />
       </Routes>
     </>
   );

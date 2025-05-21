@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Table, Button, Form, Modal, Row, Col, Badge, InputGroup, Spinner, ListGroup } from 'react-bootstrap';
-import { FaRegStar, FaStar } from 'react-icons/fa';
+import { FaRegStar, FaStar, FaMapMarkerAlt, FaTimes } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import '../styles/main.css';
 
