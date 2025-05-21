@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Navbar, Nav, NavDropdown, Button, Container, Dropdown, Offcanvas, Accordion } from 'react-bootstrap';
+import { Navbar, Nav, NavDropdown, Container, Dropdown, Offcanvas, Accordion } from 'react-bootstrap';
 import { FaGlobe, FaMoon, FaSun, FaCar } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -58,12 +58,54 @@ const regions = [
   },
 ];
 
+const ThemeToggleButton = ({ darkMode, onToggle, lang }) => {
+  return (
+    <div 
+      onClick={onToggle}
+      style={{
+        position: 'relative',
+        width: 64,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: darkMode ? '#4d4d4d' : '#e0e0e0',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease',
+        border: `1px solid ${darkMode ? '#666' : '#ddd'}`,
+      }}
+      title={darkMode ? `${LABELS[lang].theme} ☀️` : `${LABELS[lang].theme} 🌙`}
+    >
+      <div
+        style={{
+          position: 'absolute',
+          top: 2,
+          left: darkMode ? 34 : 2,
+          width: 26,
+          height: 26,
+          borderRadius: '50%',
+          backgroundColor: darkMode ? '#ffd700' : '#f0f0f0',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+        }}
+      >
+        {darkMode ? (
+          <FaSun size={14} color={darkMode ? '#333' : '#666'} />
+        ) : (
+          <FaMoon size={14} color={darkMode ? '#333' : '#666'} />
+        )}
+      </div>
+    </div>
+  );
+};
+
 const Header = ({
-    currentLang,
-    onLangChange,
-    onThemeToggle,
-    darkMode,
-  }) => {
+  currentLang,
+  onLangChange,
+  onThemeToggle,
+  darkMode,
+}) => {
   const [lang, setLang] = useState(currentLang || localStorage.getItem('lang') || 'en');
   const [showOffcanvas, setShowOffcanvas] = useState(false);
 
@@ -77,10 +119,8 @@ const Header = ({
     if (onLangChange) onLangChange(newLang);
   };
 
-  // 根據語言顯示品牌名稱
   const brandName = lang === 'en' ? 'EaseParkHK' : 'EaseParkHK - 泊易香港';
 
-  // 桌面二層下拉
   const renderDesktopDistricts = (
     <NavDropdown title={LABELS[lang].districts} id="districts-dropdown">
       {regions.map(region => (
@@ -99,7 +139,6 @@ const Header = ({
     </NavDropdown>
   );
 
-  // 手機側欄用 Accordion
   const renderMobileDistricts = (
     <Accordion>
       {regions.map(region => (
@@ -152,19 +191,18 @@ const Header = ({
                   ))}
                 </Dropdown.Menu>
               </Dropdown>
-              <Button
-                variant="outline-secondary"
-                className="ms-2"
-                onClick={onThemeToggle}
-                title={LABELS[lang].theme}
-              >
-                {darkMode ? <FaSun color="#ffd700" /> : <FaMoon color="#222" />}
-              </Button>
+              <div className="d-flex align-items-center ms-2">
+                <ThemeToggleButton 
+                  darkMode={darkMode} 
+                  onToggle={onThemeToggle}
+                  lang={lang}
+                />
+              </div>
             </Nav>
           </Navbar.Collapse>
         </Container>
       </Navbar>
-      {/* 手機側邊欄，只在小於lg時顯示，地區選單在最上方 */}
+
       <Offcanvas show={showOffcanvas} onHide={() => setShowOffcanvas(false)} placement="start" className="d-lg-none">
         <Offcanvas.Header closeButton>
           <Offcanvas.Title>
@@ -173,7 +211,6 @@ const Header = ({
           </Offcanvas.Title>
         </Offcanvas.Header>
         <Offcanvas.Body>
-          {/* 地區選單在最上方 */}
           <div className="mb-3">
             <h6>{LABELS[lang].districts}</h6>
             {renderMobileDistricts}
@@ -184,7 +221,7 @@ const Header = ({
             <Nav.Link as={Link} to="/camera" onClick={() => setShowOffcanvas(false)}>{LABELS[lang].camera}</Nav.Link>
             <Nav.Link as={Link} to="/settings" onClick={() => setShowOffcanvas(false)}>{LABELS[lang].settings}</Nav.Link>
           </Nav>
-          <div className="mt-3">
+          <div className="mt-3 d-flex align-items-center">
             <Dropdown align="end" className="me-2">
               <Dropdown.Toggle variant="outline-secondary" id="dropdown-lang-mobile" style={{ minWidth: 60 }}>
                 <FaGlobe style={{ marginRight: 4 }} />
@@ -198,14 +235,11 @@ const Header = ({
                 ))}
               </Dropdown.Menu>
             </Dropdown>
-            <Button
-              variant="outline-secondary"
-              className="ms-2"
-              onClick={() => { onThemeToggle(); setShowOffcanvas(false); }}
-              title={LABELS[lang].theme}
-            >
-              {darkMode ? <FaSun color="#ffd700" /> : <FaMoon color="#222" />}
-            </Button>
+            <ThemeToggleButton 
+              darkMode={darkMode} 
+              onToggle={() => { onThemeToggle(); setShowOffcanvas(false); }}
+              lang={lang}
+            />
           </div>
         </Offcanvas.Body>
       </Offcanvas>
