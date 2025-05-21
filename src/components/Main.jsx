@@ -4,7 +4,6 @@ import { FaRegStar, FaStar } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import '../styles/main.css';
 
-// Vehicle types mapping
 const VEHICLE_TYPES = [
   { value: 'P', label: { en: 'Private Car', tc: '私家車', sc: '私家车' } },
   { value: 'P_D', label: { en: 'Private Car (Disabled)', tc: '私家車(傷健人士)', sc: '私家车(伤健人士)' } },
@@ -14,19 +13,11 @@ const VEHICLE_TYPES = [
   { value: 'COACH', label: { en: 'Coach', tc: '巴士', sc: '巴士' } },
 ];
 
-// Status order for sorting: OPEN > CLOSED > UNKNOWN
 const STATUS_ORDER = {
   OPEN: 0,
   CLOSED: 1,
   UNKNOWN: 2,
 };
-
-// Supported languages
-const LANGS = [
-  { key: 'en', label: 'English' },
-  { key: 'tc', label: '繁' },
-  { key: 'sc', label: '简' },
-];
 
 function Main({ lang }) {
   const [carparks, setCarparks] = useState([]);
@@ -71,10 +62,10 @@ function Main({ lang }) {
             }
             vacancyMap[item.park_id][vt.type] = hourly
               ? {
-                  vacancy: vacancyValue,
-                  vacancy_type: hourly.vacancy_type,
-                  lastupdate: hourly.lastupdate,
-                }
+                vacancy: vacancyValue,
+                vacancy_type: hourly.vacancy_type,
+                lastupdate: hourly.lastupdate,
+              }
               : { vacancy: -1, vacancy_type: '', lastupdate: '' };
           }
         }
@@ -419,6 +410,7 @@ function CarparkTable({ carparks, vehicleType, onShowMap, onToggleFavorite, favo
 
   return (
     <>
+      {/* 桌面 Table */}
       <div className="d-none d-md-block">
         <Table striped hover responsive className="mt-3 align-middle" style={{ background: '#fff', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.07)' }}>
           <thead style={{ background: '#232323' }}>
@@ -478,15 +470,16 @@ function CarparkTable({ carparks, vehicleType, onShowMap, onToggleFavorite, favo
         </Table>
       </div>
 
+      {/* 手機 List，無 park_id */}
       <div className="d-md-none">
         <ListGroup>
           {sortedCarparks.map(carpark => (
             <ListGroup.Item key={carpark.park_Id} style={{ marginBottom: 8, borderRadius: '8px', boxShadow: '0 1px 6px rgba(0,0,0,0.07)', background: '#fff' }}>
               <div className="d-flex justify-content-between align-items-start">
                 <div style={{ flex: 1 }}>
-                  <Link to={`/info/${carpark.park_Id}`} style={{ fontWeight: 'bold', color: '#1976d2', textDecoration: 'underline', fontSize: '1.1em' }}>
+                  <div style={{ fontWeight: 'bold', color: '#1976d2', fontSize: '1.1em' }}>
                     {carpark.name[lang]}
-                  </Link>
+                  </div>
                   <div style={{ color: '#607d8b', fontSize: '0.95em' }}>{carpark.district[lang]}</div>
                   <div style={{ color: '#555', fontSize: '0.95em' }}>{carpark.displayAddress[lang]}</div>
                   <div className="mt-1">
