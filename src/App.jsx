@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import Main from './components/Main';
 import CarparkDetail from './components/Carparkdetail';
-import { Routes, Route } from 'react-router-dom'; // 不要再 import Router
+import Settings from './components/Settings';
+import { Routes, Route } from 'react-router-dom';
 
 function App() {
   const [darkMode, setDarkMode] = useState(localStorage.getItem('darkMode') === 'enabled');
@@ -12,6 +13,10 @@ function App() {
     document.body.classList.toggle('dark-mode', darkMode);
     localStorage.setItem('darkMode', darkMode ? 'enabled' : 'disabled');
   }, [darkMode]);
+
+  useEffect(() => {
+    localStorage.setItem('lang', lang);
+  }, [lang]);
 
   return (
     <>
@@ -24,6 +29,17 @@ function App() {
       <Routes>
         <Route path="/" element={<Main lang={lang} darkMode={darkMode} />} />
         <Route path="/info/:park_id" element={<CarparkDetail lang={lang} />} />
+        <Route
+          path="/settings"
+          element={
+            <Settings
+              lang={lang}
+              onLangChange={setLang}
+              darkMode={darkMode}
+              onThemeToggle={() => setDarkMode((prev) => !prev)}
+            />
+          }
+        />
       </Routes>
     </>
   );

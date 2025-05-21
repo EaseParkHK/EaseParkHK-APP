@@ -1,49 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Navbar, Nav, NavDropdown, Button, Container, Dropdown } from 'react-bootstrap';
-import { FaGlobe, FaMoon, FaSun } from 'react-icons/fa';
+import { Navbar, Nav, NavDropdown, Button, Container, Dropdown, Offcanvas, Form } from 'react-bootstrap';
+import { FaGlobe, FaMoon, FaSun, FaHeart, FaCog, FaMapMarkerAlt, FaCar, FaListUl, FaBars } from 'react-icons/fa';
+import { Link, useLocation } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
-
-// 自訂 dark mode 樣式
-const darkStyles = `
-  body.dark-mode {
-    background: #181a1b !important;
-    color: #e0e0e0 !important;
-    transition: background 0.3s, color 0.3s;
-  }
-  .navbar-dark {
-    background: #23272b !important;
-    border-bottom: 1px solid #222 !important;
-  }
-  .navbar-dark .navbar-brand, 
-  .navbar-dark .nav-link, 
-  .navbar-dark .dropdown-toggle, 
-  .navbar-dark .dropdown-item {
-    color: #e0e0e0 !important;
-  }
-  .navbar-dark .dropdown-menu {
-    background: #23272b !important;
-    border-color: #333 !important;
-  }
-  .navbar-dark .dropdown-item:hover, 
-  .navbar-dark .dropdown-item:focus {
-    background: #343a40 !important;
-    color: #fff !important;
-  }
-  .night-mode-icon {
-    font-size: 1.2em;
-    vertical-align: middle;
-  }
-  .btn-outline-secondary {
-    border-color: #666 !important;
-    color: #e0e0e0 !important;
-    background: transparent !important;
-  }
-  .btn-outline-secondary:hover, .btn-outline-secondary:focus {
-    background: #343a40 !important;
-    color: #fff !important;
-    border-color: #888 !important;
-  }
-`;
 
 // 多語言標籤
 const LANGS = [
@@ -54,36 +13,45 @@ const LANGS = [
 
 const LABELS = {
   en: {
+    home: 'Home',
     districts: 'Districts',
-    metered: 'Metered Parking Spaces',
-    camera: 'Traffic Camera Locations',
+    metered: 'Metered Parking',
+    camera: 'Traffic Cameras',
     news: 'Traffic Notices',
     settings: 'Settings',
+    favourites: 'Favourites',
+    theme: 'Theme',
+    language: 'Language',
+    quickLinks: 'Quick Links',
+    menu: 'Menu',
   },
   tc: {
+    home: '主頁',
     districts: '地區',
-    metered: '咪錶泊車位',
-    camera: '交通監察鏡頭',
+    metered: '咪錶泊車',
+    camera: '交通鏡頭',
     news: '交通通知',
     settings: '設定',
+    favourites: '收藏',
+    theme: '主題',
+    language: '語言',
+    quickLinks: '快速連結',
+    menu: '選單',
   },
   sc: {
+    home: '主页',
     districts: '地区',
-    metered: '咪表停车位',
-    camera: '交通监控摄像头',
+    metered: '咪表停车',
+    camera: '交通摄像头',
     news: '交通通知',
     settings: '设置',
+    favourites: '收藏',
+    theme: '主题',
+    language: '语言',
+    quickLinks: '快速链接',
+    menu: '菜单',
   },
 };
-
-// 請補上你的 districts 與 meteredParking 資料
-const districts = [
-  // ...existing code...
-];
-
-const meteredParking = [
-  // ...existing code...
-];
 
 const Header = ({
   currentLang,
@@ -92,6 +60,8 @@ const Header = ({
   darkMode,
 }) => {
   const [lang, setLang] = useState(currentLang || localStorage.getItem('lang') || 'en');
+  const [showMenu, setShowMenu] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     setLang(currentLang || localStorage.getItem('lang') || 'en');
@@ -104,23 +74,8 @@ const Header = ({
     } else {
       document.body.classList.remove('dark-mode');
     }
-    // 清理
     return () => document.body.classList.remove('dark-mode');
   }, [darkMode]);
-
-  // 注入 dark mode 樣式
-  useEffect(() => {
-    let styleTag = document.getElementById('dark-mode-style');
-    if (!styleTag) {
-      styleTag = document.createElement('style');
-      styleTag.id = 'dark-mode-style';
-      document.head.appendChild(styleTag);
-    }
-    styleTag.innerHTML = darkStyles;
-    return () => {
-      if (styleTag) styleTag.innerHTML = '';
-    };
-  }, []);
 
   const handleLangChange = (newLang) => {
     setLang(newLang);
@@ -128,85 +83,149 @@ const Header = ({
     if (onLangChange) onLangChange(newLang);
   };
 
-  const langOptions = LANGS.filter(l => l.key !== lang);
+  // 新增：快速連結
+  const quickLinks = [
+    { to: '/', icon: <FaMapMarkerAlt />, label: LABELS[lang].home },
+    { to: '/#/settings', icon: <FaCog />, label: LABELS[lang].settings },
+    { to: '/#/favourites', icon: <FaHeart />, label: LABELS[lang].favourites },
+    { to: '/#/news', icon: <FaListUl />, label: LABELS[lang].news },
+  ];
 
   return (
-    <Navbar
-      bg={darkMode ? 'dark' : 'light'}
-      variant={darkMode ? 'dark' : 'light'}
-      expand="lg"
-      sticky="top"
-      style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}
-    >
-      <Container>
-        <Navbar.Brand href="/" style={{ fontWeight: 800, letterSpacing: 1 }}>
-          EaseParkHK
-        </Navbar.Brand>
-        <Navbar.Toggle aria-controls="main-navbar" />
-        <Navbar.Collapse id="main-navbar">
-          <Nav className="me-auto">
-            <NavDropdown title={LABELS[lang].districts} id="districts-dropdown">
-              {districts.map((d) => (
-                <NavDropdown key={d.name} title={d.name} id={`sub-${d.name}`} drop="end">
-                  {d.sub.map((s) => (
-                    <NavDropdown.Item key={s.name} href={s.url}>
-                      {s.name}
-                    </NavDropdown.Item>
+    <>
+      <Navbar
+        bg={darkMode ? 'dark' : 'light'}
+        variant={darkMode ? 'dark' : 'light'}
+        expand="lg"
+        sticky="top"
+        style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}
+        className="py-2"
+      >
+        <Container>
+          <Navbar.Brand as={Link} to="/" style={{ fontWeight: 800, letterSpacing: 1, fontSize: 22 }}>
+            <FaCar style={{ marginRight: 8, color: '#0d6efd' }} />
+            EaseParkHK
+          </Navbar.Brand>
+          <Button
+            variant={darkMode ? 'outline-light' : 'outline-dark'}
+            className="d-lg-none"
+            onClick={() => setShowMenu(true)}
+            aria-label={LABELS[lang].menu}
+          >
+            <FaBars />
+          </Button>
+          <Navbar.Toggle aria-controls="main-navbar" className="d-none" />
+          <Navbar.Collapse id="main-navbar" className="d-none d-lg-flex">
+            <Nav className="me-auto">
+              <Nav.Link as={Link} to="/">{LABELS[lang].home}</Nav.Link>
+              <Nav.Link as={Link} to="/news">{LABELS[lang].news}</Nav.Link>
+              <Nav.Link as={Link} to="/camera">{LABELS[lang].camera}</Nav.Link>
+              <Nav.Link as={Link} to="/settings">{LABELS[lang].settings}</Nav.Link>
+            </Nav>
+            <Nav>
+              {/* 語言切換 */}
+              <Dropdown align="end" className="me-2">
+                <Dropdown.Toggle variant="outline-secondary" id="dropdown-lang" style={{ minWidth: 60 }}>
+                  <FaGlobe style={{ marginRight: 4 }} />
+                  {LANGS.find(l => l.key === lang)?.label}
+                </Dropdown.Toggle>
+                <Dropdown.Menu>
+                  {LANGS.filter(l => l.key !== lang).map(opt => (
+                    <Dropdown.Item key={opt.key} onClick={() => handleLangChange(opt.key)}>
+                      {opt.label}
+                    </Dropdown.Item>
                   ))}
-                </NavDropdown>
-              ))}
-            </NavDropdown>
-            <NavDropdown title={LABELS[lang].metered} id="metered-dropdown">
-              {meteredParking.map((m) => (
-                <NavDropdown.Item key={m.name} href={m.url}>
-                  {m.name}
-                </NavDropdown.Item>
-              ))}
-            </NavDropdown>
-            <Nav.Link href="/camera">{LABELS[lang].camera}</Nav.Link>
-            <Nav.Link href="/news">{LABELS[lang].news}</Nav.Link>
+                </Dropdown.Menu>
+              </Dropdown>
+              {/* 主題切換 */}
+              <Button
+                variant="outline-secondary"
+                className="ms-2"
+                onClick={onThemeToggle}
+                title={LABELS[lang].theme}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '6px 10px',
+                  borderRadius: '50%',
+                  boxShadow: darkMode ? '0 2px 8px #0002' : '0 2px 8px #0001',
+                  transition: 'background 0.2s, box-shadow 0.2s',
+                }}
+              >
+                {darkMode ? (
+                  <FaSun className="night-mode-icon" color="#ffd700" />
+                ) : (
+                  <FaMoon className="night-mode-icon" color="#222" />
+                )}
+              </Button>
+            </Nav>
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
+
+      {/* Offcanvas 側邊選單（行動裝置友善） */}
+      <Offcanvas show={showMenu} onHide={() => setShowMenu(false)} placement="start">
+        <Offcanvas.Header closeButton>
+          <Offcanvas.Title>
+            <FaCar style={{ marginRight: 8, color: '#0d6efd' }} />
+            EaseParkHK
+          </Offcanvas.Title>
+        </Offcanvas.Header>
+        <Offcanvas.Body>
+          <Nav className="flex-column">
+            {quickLinks.map(link => (
+              <Nav.Link
+                as={Link}
+                to={link.to}
+                key={link.to}
+                onClick={() => setShowMenu(false)}
+                active={location.pathname === link.to.replace('/#', '')}
+                style={{ display: 'flex', alignItems: 'center', fontSize: 18, marginBottom: 8 }}
+              >
+                {link.icon}
+                <span style={{ marginLeft: 8 }}>{link.label}</span>
+              </Nav.Link>
+            ))}
           </Nav>
-          <Nav>
-            {/* Language Switcher */}
-            <Dropdown align="end" className="me-2">
-              <Dropdown.Toggle variant="outline-secondary" id="dropdown-lang" style={{ minWidth: 60 }}>
-                <FaGlobe style={{ marginRight: 4 }} />
-                {LANGS.find(l => l.key === lang)?.label}
-              </Dropdown.Toggle>
-              <Dropdown.Menu>
-                {langOptions.map(opt => (
-                  <Dropdown.Item key={opt.key} onClick={() => handleLangChange(opt.key)}>
-                    {opt.label}
-                  </Dropdown.Item>
-                ))}
-              </Dropdown.Menu>
-            </Dropdown>
-            <Nav.Link href="/settings">{LABELS[lang].settings}</Nav.Link>
-            <Button
-              variant="outline-secondary"
-              className="ms-2"
-              onClick={onThemeToggle}
-              title="切換深色模式"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '6px 10px',
-                borderRadius: '50%',
-                boxShadow: darkMode ? '0 2px 8px #0002' : '0 2px 8px #0001',
-                transition: 'background 0.2s, box-shadow 0.2s',
-              }}
+          <hr />
+          <div className="mb-3">
+            <Form.Label>{LABELS[lang].language}</Form.Label>
+            <Form.Select
+              value={lang}
+              onChange={e => handleLangChange(e.target.value)}
+              className="mb-2"
             >
-              {darkMode ? (
-                <FaSun className="night-mode-icon" color="#ffd700" />
-              ) : (
-                <FaMoon className="night-mode-icon" color="#222" />
-              )}
+              {LANGS.map(opt => (
+                <option key={opt.key} value={opt.key}>{opt.label}</option>
+              ))}
+            </Form.Select>
+          </div>
+          <div>
+            <Form.Label>{LABELS[lang].theme}</Form.Label>
+            <Button
+              variant={darkMode ? 'secondary' : 'outline-secondary'}
+              onClick={onThemeToggle}
+              className="w-100"
+              style={{ marginTop: 4 }}
+            >
+              {darkMode ? <FaSun style={{ marginRight: 6 }} /> : <FaMoon style={{ marginRight: 6 }} />}
+              {darkMode
+                ? lang === 'en'
+                  ? 'Dark Mode'
+                  : lang === 'tc'
+                  ? '深色模式'
+                  : '深色模式'
+                : lang === 'en'
+                ? 'Light Mode'
+                : lang === 'tc'
+                ? '淺色模式'
+                : '浅色模式'}
             </Button>
-          </Nav>
-        </Navbar.Collapse>
-      </Container>
-    </Navbar>
+          </div>
+        </Offcanvas.Body>
+      </Offcanvas>
+    </>
   );
 };
 

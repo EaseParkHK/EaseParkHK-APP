@@ -29,7 +29,6 @@ const LANGS = [
 ];
 
 function Main({ lang }) {
-  // Language state
   const [carparks, setCarparks] = useState([]);
   const [favorites, setFavorites] = useState(() => JSON.parse(localStorage.getItem('favorite_carparks') || '[]'));
   const [vehicleType, setVehicleType] = useState('P');
@@ -38,7 +37,6 @@ function Main({ lang }) {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
-  // Save selected vehicle type and lang to localStorage
   useEffect(() => {
     localStorage.setItem('selected_vehicle_type', vehicleType);
   }, [vehicleType]);
@@ -46,7 +44,6 @@ function Main({ lang }) {
     localStorage.setItem('lang', lang);
   }, [lang]);
 
-  // Fetch car park data from APIs
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
@@ -163,14 +160,10 @@ function Main({ lang }) {
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div className="text-center w-100">
           <h1 style={{ fontWeight: 800, letterSpacing: 1, color: '#1a237e', fontSize: '2.2rem' }}>
-            {lang === 'en' && 'Hong Kong Parking Information'}
-            {lang === 'tc' && '香港停車場資訊'}
-            {lang === 'sc' && '香港停车场资讯'}
+            {lang === 'en' ? 'Hong Kong Parking Information' : lang === 'tc' ? '香港停車場資訊' : '香港停车场资讯'}
           </h1>
           <p style={{ color: '#607d8b', fontSize: '1.15em', fontWeight: 500 }}>
-            {lang === 'en' && 'Find real-time parking vacancy and info for all types of vehicles'}
-            {lang === 'tc' && '即時查詢各類車輛停車場空位及資訊'}
-            {lang === 'sc' && '实时查询各类车辆停车场空位及资讯'}
+            {lang === 'en' ? 'Find real-time parking vacancy and info for all types of vehicles' : lang === 'tc' ? '即時查詢各類車輛停車場空位及資訊' : '实时查询各类车辆停车场空位及资讯'}
           </p>
         </div>
       </div>
@@ -178,9 +171,7 @@ function Main({ lang }) {
         <Col md={4} xs={12} className="mb-2 mb-md-0">
           <Form.Group>
             <Form.Label style={{ fontWeight: 700, color: '#1976d2' }}>
-              {lang === 'en' && 'Vehicle Type:'}
-              {lang === 'tc' && '車輛類型：'}
-              {lang === 'sc' && '车辆类型：'}
+              {lang === 'en' ? 'Vehicle Type:' : lang === 'tc' ? '車輛類型：' : '车辆类型：'}
             </Form.Label>
             <Form.Select value={vehicleType} onChange={e => setVehicleType(e.target.value)}>
               {VEHICLE_TYPES.map(v => (
@@ -192,29 +183,19 @@ function Main({ lang }) {
         <Col md={8} xs={12}>
           <Form.Group>
             <Form.Label style={{ fontWeight: 700, color: '#1976d2' }}>
-              {lang === 'en' && 'Search (Name or Address):'}
-              {lang === 'tc' && '搜尋（名稱或地址）：'}
-              {lang === 'sc' && '搜索（名称或地址）：'}
+              {lang === 'en' ? 'Search (Name or Address):' : lang === 'tc' ? '搜尋（名稱或地址）：' : '搜索（名称或地址）：'}
             </Form.Label>
             <InputGroup>
               <Form.Control
                 type="text"
-                placeholder={
-                  lang === 'en'
-                    ? 'Enter name or address'
-                    : lang === 'tc'
-                    ? '輸入名稱或地址'
-                    : '输入名称或地址'
-                }
+                placeholder={lang === 'en' ? 'Enter name or address' : lang === 'tc' ? '輸入名稱或地址' : '输入名称或地址'}
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 style={{ borderRight: 0, borderRadius: '0.375rem 0 0 0.375rem', fontWeight: 500 }}
               />
               {search && (
                 <Button variant="outline-secondary" onClick={() => setSearch('')} style={{ borderRadius: '0 0.375rem 0.375rem 0' }}>
-                  {lang === 'en' && 'Clear'}
-                  {lang === 'tc' && '清除'}
-                  {lang === 'sc' && '清除'}
+                  {lang === 'en' ? 'Clear' : lang === 'tc' ? '清除' : '清除'}
                 </Button>
               )}
             </InputGroup>
@@ -228,9 +209,7 @@ function Main({ lang }) {
             <span className="visually-hidden">Loading...</span>
           </Spinner>
           <div style={{ marginTop: 10, fontWeight: 'bold', fontSize: '1.2em', color: '#007bff' }}>
-            {lang === 'en' && 'Loading...'}
-            {lang === 'tc' && '載入中...'}
-            {lang === 'sc' && '加载中...'}
+            {lang === 'en' ? 'Loading...' : lang === 'tc' ? '載入中...' : '加载中...'}
           </div>
         </div>
       ) : (
@@ -239,9 +218,7 @@ function Main({ lang }) {
             <>
               <h2 style={{ fontWeight: 700, color: '#ff9800', marginTop: 24 }}>
                 <FaStar style={{ color: '#FFD700', marginRight: 6, background: '#232323', borderRadius: '50%', padding: 2 }} />
-                {lang === 'en' && 'Favorite Parking Lots'}
-                {lang === 'tc' && '我的最愛'}
-                {lang === 'sc' && '我的收藏'}
+                {lang === 'en' ? 'Favorite Parking Lots' : lang === 'tc' ? '我的最愛' : '我的收藏'}
                 <Badge bg="warning" style={{ marginLeft: 8 }}>{favoriteCarparks.length}</Badge>
               </h2>
               <CarparkTable
@@ -256,9 +233,7 @@ function Main({ lang }) {
           )}
 
           <h2 className="mt-4" style={{ fontWeight: 700, color: '#1976d2' }}>
-            {lang === 'en' && 'All Parking Lots'}
-            {lang === 'tc' && '所有停車場'}
-            {lang === 'sc' && '所有停车场'}
+            {lang === 'en' ? 'All Parking Lots' : lang === 'tc' ? '所有停車場' : '所有停车场'}
             <Badge bg="info" style={{ marginLeft: 8 }}>{otherCarparks.length}</Badge>
           </h2>
           <CarparkTable
@@ -271,21 +246,16 @@ function Main({ lang }) {
           />
           {favoriteCarparks.length + otherCarparks.length === 0 && (
             <p className="text-center text-danger mt-4" style={{ fontWeight: 700 }}>
-              {lang === 'en' && 'No results found. Try adjusting your search or filters.'}
-              {lang === 'tc' && '找不到結果，請嘗試調整搜尋或篩選條件。'}
-              {lang === 'sc' && '未找到结果，请尝试调整搜索或筛选条件。'}
+              {lang === 'en' ? 'No results found. Try adjusting your search or filters.' : lang === 'tc' ? '找不到結果，請嘗試調整搜尋或篩選條件。' : '未找到结果，请尝试调整搜索或筛选条件。'}
             </p>
           )}
         </>
       )}
 
-      {/* Map Modal */}
       <Modal show={showMap} onHide={() => setShowMap(false)} size="lg" centered>
         <Modal.Header closeButton>
           <Modal.Title>
-            {lang === 'en' && 'Carpark Location'}
-            {lang === 'tc' && '停車場位置'}
-            {lang === 'sc' && '停车场位置'}
+            {lang === 'en' ? 'Carpark Location' : lang === 'tc' ? '停車場位置' : '停车场位置'}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -309,9 +279,7 @@ function Main({ lang }) {
             />
           ) : (
             <p>
-              {lang === 'en' && 'Location not available'}
-              {lang === 'tc' && '未有位置資料'}
-              {lang === 'sc' && '没有位置信息'}
+              {lang === 'en' ? 'Location not available' : lang === 'tc' ? '未有位置資料' : '没有位置信息'}
             </p>
           )}
         </Modal.Body>
@@ -320,7 +288,6 @@ function Main({ lang }) {
   );
 }
 
-// Status badge component with colored box (keep color)
 function StatusBadge({ status, lang }) {
   let text = status;
   let bg = '#bdbdbd';
@@ -355,7 +322,6 @@ function StatusBadge({ status, lang }) {
   );
 }
 
-// Vacancy badge component
 function VacancyBadge({ value, lang }) {
   if (value === -1) {
     return (
@@ -411,7 +377,6 @@ function VacancyBadge({ value, lang }) {
   );
 }
 
-// Carpark table component with sorting and status/vacancy ranking
 function CarparkTable({ carparks, vehicleType, onShowMap, onToggleFavorite, favorites, lang }) {
   const [sortColumn, setSortColumn] = useState('vacancy_ranking');
   const [sortDirection, setSortDirection] = useState('desc');
@@ -425,7 +390,6 @@ function CarparkTable({ carparks, vehicleType, onShowMap, onToggleFavorite, favo
     setSortDirection(newDirection);
   };
 
-  // Add status and vacancy ranking for sorting
   const carparksWithRanking = carparks.map(c => {
     const vacancy = c[`${vehicleType}_vacancy`];
     let vacancy_ranking = 0;
@@ -439,7 +403,6 @@ function CarparkTable({ carparks, vehicleType, onShowMap, onToggleFavorite, favo
     };
   });
 
-  // Sort: status (OPEN > CLOSED > UNKNOWN), then by vacancy ranking (most > NO DATA > FULL), then by selected column
   const sortedCarparks = [...carparksWithRanking].sort((a, b) => {
     if (a.status_ranking !== b.status_ranking) {
       return a.status_ranking - b.status_ranking;
@@ -456,9 +419,8 @@ function CarparkTable({ carparks, vehicleType, onShowMap, onToggleFavorite, favo
 
   return (
     <>
-      {/* Desktop Table */}
       <div className="d-none d-md-block">
-        <Table striped hover responsive className="mt-3 align-middle" style={{ background: '#fff', borderRadius: 14, boxShadow: '0 2px 10px rgba(0,0,0,0.07)' }}>
+        <Table striped hover responsive className="mt-3 align-middle" style={{ background: '#fff', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.07)' }}>
           <thead style={{ background: '#232323' }}>
             <tr>
               <th onClick={() => handleSort('name')} style={{ cursor: 'pointer', minWidth: 180, fontWeight: 700, color: '#1976d2' }}>
@@ -499,7 +461,14 @@ function CarparkTable({ carparks, vehicleType, onShowMap, onToggleFavorite, favo
                   <Button variant="outline-primary" size="sm" onClick={() => onShowMap(carpark)} style={{ marginRight: 6 }}>
                     {lang === 'en' ? 'Map' : lang === 'tc' ? '地圖' : '地图'}
                   </Button>
-                  <Button variant="link" size="sm" onClick={() => onToggleFavorite(carpark.park_Id)}>
+                  <Button
+                    variant="link"
+                    size="sm"
+                    onClick={() => onToggleFavorite(carpark.park_Id)}
+                    aria-label={favorites.includes(carpark.park_Id)
+                      ? (lang === 'en' ? 'Remove from favorites' : lang === 'tc' ? '從最愛中移除' : '从收藏中移除')
+                      : (lang === 'en' ? 'Add to favorites' : lang === 'tc' ? '加入最愛' : '加入收藏')}
+                  >
                     {favorites.includes(carpark.park_Id) ? <FaStar style={{ color: '#FFD700', fontSize: 20 }} /> : <FaRegStar style={{ fontSize: 20 }} />}
                   </Button>
                 </td>
@@ -509,11 +478,10 @@ function CarparkTable({ carparks, vehicleType, onShowMap, onToggleFavorite, favo
         </Table>
       </div>
 
-      {/* Mobile ListGroup */}
       <div className="d-md-none">
         <ListGroup>
           {sortedCarparks.map(carpark => (
-            <ListGroup.Item key={carpark.park_Id} style={{ marginBottom: 8, borderRadius: 12, boxShadow: '0 1px 6px rgba(0,0,0,0.07)', background: '#232323' }}>
+            <ListGroup.Item key={carpark.park_Id} style={{ marginBottom: 8, borderRadius: '8px', boxShadow: '0 1px 6px rgba(0,0,0,0.07)', background: '#fff' }}>
               <div className="d-flex justify-content-between align-items-start">
                 <div style={{ flex: 1 }}>
                   <Link to={`/info/${carpark.park_Id}`} style={{ fontWeight: 'bold', color: '#1976d2', textDecoration: 'underline', fontSize: '1.1em' }}>
@@ -532,7 +500,14 @@ function CarparkTable({ carparks, vehicleType, onShowMap, onToggleFavorite, favo
                   <Button variant="outline-primary" size="sm" onClick={() => onShowMap(carpark)} style={{ width: 56 }}>
                     {lang === 'en' ? 'Map' : lang === 'tc' ? '地圖' : '地图'}
                   </Button>
-                  <Button variant="link" size="sm" onClick={() => onToggleFavorite(carpark.park_Id)}>
+                  <Button
+                    variant="link"
+                    size="sm"
+                    onClick={() => onToggleFavorite(carpark.park_Id)}
+                    aria-label={favorites.includes(carpark.park_Id)
+                      ? (lang === 'en' ? 'Remove from favorites' : lang === 'tc' ? '從最愛中移除' : '从收藏中移除')
+                      : (lang === 'en' ? 'Add to favorites' : lang === 'tc' ? '加入最愛' : '加入收藏')}
+                  >
                     {favorites.includes(carpark.park_Id) ? <FaStar style={{ color: '#FFD700', fontSize: 22 }} /> : <FaRegStar style={{ fontSize: 22 }} />}
                   </Button>
                 </div>
