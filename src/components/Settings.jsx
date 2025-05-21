@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Card, Form, Button, ListGroup, InputGroup, Row, Col, Modal, Badge, Tooltip, OverlayTrigger, Spinner } from 'react-bootstrap';
+import { Container, Card, Form, Button, ListGroup, InputGroup, Row, Col, Modal, Badge, OverlayTrigger, Tooltip, Spinner } from 'react-bootstrap';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 
-// carparkList 由 API 取得
 function getCarparkName(id, lang, carparkList) {
   const found = carparkList.find(c => c.park_id === id);
   if (!found) return '';
@@ -25,7 +25,6 @@ function Settings({ lang, onLangChange, darkMode, onThemeToggle }) {
   const [editGroupName, setEditGroupName] = useState('');
   const [showEditModal, setShowEditModal] = useState(false);
 
-  // 取得 carparkList
   useEffect(() => {
     setLoading(true);
     fetch('https://resource.data.one.gov.hk/td/carpark/basic_info_all.json')
@@ -37,15 +36,14 @@ function Settings({ lang, onLangChange, darkMode, onThemeToggle }) {
       .catch(() => setLoading(false));
   }, []);
 
-  // 同步 localStorage
   useEffect(() => {
     localStorage.setItem('favorite_carparks', JSON.stringify(favorites));
   }, [favorites]);
+
   useEffect(() => {
     localStorage.setItem('carpark_groups', JSON.stringify(groups));
   }, [groups]);
 
-  // 新增群組
   const handleAddGroup = () => {
     if (newGroup && !groups[newGroup]) {
       setGroups({ ...groups, [newGroup]: [] });
@@ -53,11 +51,11 @@ function Settings({ lang, onLangChange, darkMode, onThemeToggle }) {
     }
   };
 
-  // 刪除群組
   const handleDeleteGroup = group => {
     setGroupToDelete(group);
     setShowConfirm(true);
   };
+
   const confirmDeleteGroup = () => {
     const newGroups = { ...groups };
     delete newGroups[groupToDelete];
@@ -67,21 +65,17 @@ function Settings({ lang, onLangChange, darkMode, onThemeToggle }) {
     setGroupToDelete('');
   };
 
-  // 編輯群組名稱
   const handleEditGroup = group => {
     setEditGroup(group);
     setEditGroupName(group);
     setShowEditModal(true);
   };
+
   const confirmEditGroup = () => {
-    if (!editGroupName || groups[editGroupName]) return;
+    if (!editGroupName || (groups[editGroupName] && editGroupName !== editGroup)) return;
     const newGroups = {};
     Object.entries(groups).forEach(([g, ids]) => {
-      if (g === editGroup) {
-        newGroups[editGroupName] = ids;
-      } else {
-        newGroups[g] = ids;
-      }
+      newGroups[g === editGroup ? editGroupName : g] = ids;
     });
     setGroups(newGroups);
     if (selectedGroup === editGroup) setSelectedGroup(editGroupName);
@@ -90,7 +84,6 @@ function Settings({ lang, onLangChange, darkMode, onThemeToggle }) {
     setEditGroupName('');
   };
 
-  // 加入收藏
   const handleAddFavorite = () => {
     if (carparkId && !favorites.includes(carparkId)) {
       setFavorites([...favorites, carparkId]);
@@ -98,10 +91,8 @@ function Settings({ lang, onLangChange, darkMode, onThemeToggle }) {
     setCarparkId('');
   };
 
-  // 從收藏移除
   const handleRemoveFavorite = id => {
     setFavorites(favorites.filter(f => f !== id));
-    // 同時從所有群組移除
     const newGroups = {};
     Object.keys(groups).forEach(g => {
       newGroups[g] = groups[g].filter(cid => cid !== id);
@@ -109,7 +100,6 @@ function Settings({ lang, onLangChange, darkMode, onThemeToggle }) {
     setGroups(newGroups);
   };
 
-  // 加入群組
   const handleAddToGroup = id => {
     if (selectedGroup && groups[selectedGroup] && !groups[selectedGroup].includes(id)) {
       setGroups({
@@ -119,7 +109,6 @@ function Settings({ lang, onLangChange, darkMode, onThemeToggle }) {
     }
   };
 
-  // 從群組移除
   const handleRemoveFromGroup = (group, id) => {
     setGroups({
       ...groups,
@@ -127,7 +116,6 @@ function Settings({ lang, onLangChange, darkMode, onThemeToggle }) {
     });
   };
 
-  // 收藏排序
   const handleSortFavorites = () => {
     const sorted = [...favorites].sort((a, b) => {
       const nameA = getCarparkName(a, lang, carparkList);
@@ -137,48 +125,41 @@ function Settings({ lang, onLangChange, darkMode, onThemeToggle }) {
     setFavorites(sorted);
   };
 
-  // 收藏搜尋
-  const filteredCarparks = carparkList.filter(c =>
-    getCarparkName(c.park_id, lang, carparkList).toLowerCase().includes(search.toLowerCase())
-  );
-
-  // 收藏拖曳排序
   const handleDragStart = (e, idx) => {
     e.dataTransfer.setData('favoriteIdx', idx);
   };
+
   const handleDrop = (e, idx) => {
-    const fromIdx = e.dataTransfer.getData('favoriteIdx');
-    if (fromIdx === undefined) return;
+    const fromIdx = parseInt(e.dataTransfer.getData('favoriteIdx'), 10);
+    if (isNaN(fromIdx)) return;
     const arr = [...favorites];
     const [removed] = arr.splice(fromIdx, 1);
     arr.splice(idx, 0, removed);
     setFavorites(arr);
   };
 
-  // UIUX: Tooltip
-  const renderTooltip = msg => (
-    <Tooltip>{msg}</Tooltip>
+  const filteredCarparks = carparkList.filter(c =>
+    getCarparkName(c.park_id, lang, carparkList).toLowerCase().includes(search.toLowerCase())
   );
+
+  const renderTooltip = msg => <Tooltip>{msg}</Tooltip>;
 
   return (
     <Container className="my-5">
-      {/* 語言與主題 */}
+      {/* Language and Theme Settings */}
       <Card className="mb-4 shadow-sm">
         <Card.Body>
           <Card.Title>
-            <i className="bi bi-gear me-2"></i>
+            <i className="bi bi-gear me-2" />
             {lang === 'en' ? 'Settings' : lang === 'tc' ? '設定' : '设置'}
           </Card.Title>
           <Form>
             <Form.Group className="mb-3">
               <Form.Label>
-                <i className="bi bi-translate me-1"></i>
+                <i className="bi bi-translate me-1" />
                 {lang === 'en' ? 'Language' : lang === 'tc' ? '語言' : '语言'}
               </Form.Label>
-              <Form.Select
-                value={lang}
-                onChange={e => onLangChange(e.target.value)}
-              >
+              <Form.Select value={lang} onChange={e => onLangChange(e.target.value)}>
                 <option value="en">English</option>
                 <option value="tc">繁體中文</option>
                 <option value="sc">简体中文</option>
@@ -186,37 +167,27 @@ function Settings({ lang, onLangChange, darkMode, onThemeToggle }) {
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>
-                <i className="bi bi-moon-stars me-1"></i>
+                <i className="bi bi-moon-stars me-1" />
                 {lang === 'en' ? 'Theme' : lang === 'tc' ? '主題' : '主题'}
               </Form.Label>
-              <div>
-                <Button
-                  variant={darkMode ? 'secondary' : 'outline-secondary'}
-                  onClick={onThemeToggle}
-                >
-                  {darkMode
-                    ? lang === 'en'
-                      ? 'Dark Mode'
-                      : lang === 'tc'
-                      ? '深色模式'
-                      : '深色模式'
-                    : lang === 'en'
-                    ? 'Light Mode'
-                    : lang === 'tc'
-                    ? '淺色模式'
-                    : '浅色模式'}
-                </Button>
-              </div>
+              <Button
+                variant={darkMode ? 'secondary' : 'outline-secondary'}
+                onClick={onThemeToggle}
+              >
+                {darkMode
+                  ? lang === 'en' ? 'Dark Mode' : lang === 'tc' ? '深色模式' : '深色模式'
+                  : lang === 'en' ? 'Light Mode' : lang === 'tc' ? '淺色模式' : '浅色模式'}
+              </Button>
             </Form.Group>
           </Form>
         </Card.Body>
       </Card>
 
-      {/* 收藏管理 */}
+      {/* Favorite Carparks Management */}
       <Card className="mb-4 shadow-sm">
         <Card.Body>
           <Card.Title>
-            <i className="bi bi-star-fill text-warning me-2"></i>
+            <i className="bi bi-star-fill text-warning me-2" />
             {lang === 'en' ? 'Manage Favourite Carparks' : lang === 'tc' ? '管理收藏車場' : '管理收藏车场'}
           </Card.Title>
           {loading ? (
@@ -225,18 +196,13 @@ function Settings({ lang, onLangChange, darkMode, onThemeToggle }) {
             </div>
           ) : (
             <>
-              <InputGroup className="mb-2">
+              <InputGroup className="mb-3">
                 <Form.Control
                   placeholder={lang === 'en' ? 'Search Carpark...' : lang === 'tc' ? '搜尋車場...' : '搜索车场...'}
                   value={search}
                   onChange={e => setSearch(e.target.value)}
                 />
-              </InputGroup>
-              <InputGroup className="mb-3">
-                <Form.Select
-                  value={carparkId}
-                  onChange={e => setCarparkId(e.target.value)}
-                >
+                <Form.Select value={carparkId} onChange={e => setCarparkId(e.target.value)}>
                   <option value="">
                     {lang === 'en' ? 'Select Carpark' : lang === 'tc' ? '選擇車場' : '选择车场'}
                   </option>
@@ -247,97 +213,98 @@ function Settings({ lang, onLangChange, darkMode, onThemeToggle }) {
                   ))}
                 </Form.Select>
                 <Button variant="primary" onClick={handleAddFavorite} disabled={!carparkId}>
-                  <i className="bi bi-plus-circle me-1"></i>
+                  <i className="bi bi-plus-circle me-1" />
                   {lang === 'en' ? 'Add' : lang === 'tc' ? '加入' : '加入'}
                 </Button>
-                <Button variant="outline-secondary" onClick={handleSortFavorites} className="ms-2">
-                  <i className="bi bi-sort-alpha-down"></i>
+                <Button variant="outline-secondary" onClick={handleSortFavorites}>
+                  <i className="bi bi-sort-alpha-down" />
                 </Button>
               </InputGroup>
               <ListGroup>
-                {favorites.length === 0 && (
-                  <ListGroup.Item>
+                {favorites.length === 0 ? (
+                  <ListGroup.Item className="text-center">
                     {lang === 'en' ? 'No favourites yet.' : lang === 'tc' ? '暫無收藏。' : '暂无收藏。'}
                   </ListGroup.Item>
+                ) : (
+                  favorites.map((id, idx) => (
+                    <ListGroup.Item
+                      key={id}
+                      draggable
+                      onDragStart={e => handleDragStart(e, idx)}
+                      onDragOver={e => e.preventDefault()}
+                      onDrop={e => handleDrop(e, idx)}
+                      style={{ cursor: 'grab' }}
+                    >
+                      <Row>
+                        <Col xs={1}>
+                          <i className="bi bi-grip-vertical" />
+                        </Col>
+                        <Col xs={5}>
+                          {getCarparkName(id, lang, carparkList)}
+                        </Col>
+                        <Col xs={6} className="text-end">
+                          <OverlayTrigger
+                            placement="top"
+                            overlay={renderTooltip(lang === 'en' ? 'Remove from favourites' : lang === 'tc' ? '從收藏移除' : '从收藏移除')}
+                          >
+                            <Button
+                              variant="outline-danger"
+                              size="sm"
+                              onClick={() => handleRemoveFavorite(id)}
+                              className="me-2"
+                            >
+                              <i className="bi bi-x-lg" />
+                            </Button>
+                          </OverlayTrigger>
+                          <Form.Select
+                            size="sm"
+                            value={selectedGroup}
+                            onChange={e => setSelectedGroup(e.target.value)}
+                            style={{ width: 'auto', display: 'inline-block' }}
+                          >
+                            <option value="">
+                              {lang === 'en' ? 'Select Group' : lang === 'tc' ? '選擇群組' : '选择群组'}
+                            </option>
+                            {Object.keys(groups).map(g => (
+                              <option key={g} value={g}>{g}</option>
+                            ))}
+                          </Form.Select>
+                          <OverlayTrigger
+                            placement="top"
+                            overlay={renderTooltip(lang === 'en' ? 'Add to group' : lang === 'tc' ? '加入群組' : '加入群组')}
+                          >
+                            <Button
+                              variant="outline-primary"
+                              size="sm"
+                              onClick={() => handleAddToGroup(id)}
+                              disabled={!selectedGroup}
+                              className="ms-2"
+                            >
+                              <i className="bi bi-collection" />
+                            </Button>
+                          </OverlayTrigger>
+                        </Col>
+                      </Row>
+                    </ListGroup.Item>
+                  ))
                 )}
-                {favorites.map((id, idx) => (
-                  <ListGroup.Item
-                    key={id}
-                    draggable
-                    onDragStart={e => handleDragStart(e, idx)}
-                    onDragOver={e => e.preventDefault()}
-                    onDrop={e => handleDrop(e, idx)}
-                    style={{ cursor: 'grab', background: '#f9f9f9' }}
-                  >
-                    <Row>
-                      <Col xs={6}>
-                        <Badge bg="info" className="me-2">{idx + 1}</Badge>
-                        {getCarparkName(id, lang, carparkList)}
-                      </Col>
-                      <Col xs={6} className="text-end">
-                        <OverlayTrigger
-                          placement="top"
-                          overlay={renderTooltip(lang === 'en' ? 'Remove from favourites' : lang === 'tc' ? '從收藏移除' : '从收藏移除')}
-                        >
-                          <Button
-                            variant="outline-danger"
-                            size="sm"
-                            onClick={() => handleRemoveFavorite(id)}
-                            className="me-2"
-                          >
-                            <i className="bi bi-x-lg"></i>
-                          </Button>
-                        </OverlayTrigger>
-                        <Form.Select
-                          size="sm"
-                          style={{ width: 'auto', display: 'inline-block' }}
-                          value={selectedGroup}
-                          onChange={e => setSelectedGroup(e.target.value)}
-                        >
-                          <option value="">
-                            {lang === 'en' ? 'Select Group' : lang === 'tc' ? '選擇群組' : '选择群组'}
-                          </option>
-                          {Object.keys(groups).map(g => (
-                            <option key={g} value={g}>{g}</option>
-                          ))}
-                        </Form.Select>
-                        <OverlayTrigger
-                          placement="top"
-                          overlay={renderTooltip(lang === 'en' ? 'Add to group' : lang === 'tc' ? '加入群組' : '加入群组')}
-                        >
-                          <Button
-                            variant="outline-primary"
-                            size="sm"
-                            className="ms-2"
-                            onClick={() => handleAddToGroup(id)}
-                            disabled={!selectedGroup}
-                          >
-                            <i className="bi bi-collection"></i>
-                          </Button>
-                        </OverlayTrigger>
-                      </Col>
-                    </Row>
-                  </ListGroup.Item>
-                ))}
               </ListGroup>
-              <div className="text-muted mt-2" style={{ fontSize: '0.9em' }}>
-                <i className="bi bi-info-circle me-1"></i>
-                {lang === 'en'
-                  ? 'Drag to reorder your favourites.'
-                  : lang === 'tc'
-                  ? '拖曳以排序收藏車場。'
-                  : '拖拽以排序收藏车场。'}
-              </div>
+              {favorites.length > 0 && (
+                <small className="text-muted mt-2 d-block">
+                  <i className="bi bi-info-circle me-1" />
+                  {lang === 'en' ? 'Drag to reorder your favourites.' : lang === 'tc' ? '拖曳以排序收藏車場。' : '拖拽以排序收藏车场。'}
+                </small>
+              )}
             </>
           )}
         </Card.Body>
       </Card>
 
-      {/* 群組管理 */}
+      {/* Group Management */}
       <Card className="shadow-sm">
         <Card.Body>
           <Card.Title>
-            <i className="bi bi-collection-fill me-2"></i>
+            <i className="bi bi-collection-fill me-2" />
             {lang === 'en' ? 'Carpark Groups' : lang === 'tc' ? '車場群組' : '车场群组'}
           </Card.Title>
           <InputGroup className="mb-3">
@@ -347,69 +314,84 @@ function Settings({ lang, onLangChange, darkMode, onThemeToggle }) {
               onChange={e => setNewGroup(e.target.value)}
               maxLength={20}
             />
-            <Button variant="success" onClick={handleAddGroup} disabled={!newGroup || groups[newGroup]}>
-              <i className="bi bi-plus-circle me-1"></i>
+            <Button
+              variant="success"
+              onClick={handleAddGroup}
+              disabled={!newGroup || groups[newGroup]}
+            >
+              <i className="bi bi-plus-circle me-1" />
               {lang === 'en' ? 'Add Group' : lang === 'tc' ? '新增群組' : '新增群组'}
             </Button>
           </InputGroup>
           <ListGroup>
-            {Object.keys(groups).length === 0 && (
-              <ListGroup.Item>
+            {Object.keys(groups).length === 0 ? (
+              <ListGroup.Item className="text-center">
                 {lang === 'en' ? 'No groups yet.' : lang === 'tc' ? '暫無群組。' : '暂无群组。'}
               </ListGroup.Item>
-            )}
-            {Object.entries(groups).map(([g, ids]) => (
-              <ListGroup.Item key={g}>
-                <Row>
-                  <Col xs={6}>
-                    <b>{g}</b>
-                    <Button
-                      variant="link"
-                      size="sm"
-                      className="ms-2 p-0"
-                      style={{ color: '#0d6efd', textDecoration: 'underline' }}
-                      onClick={() => handleEditGroup(g)}
-                    >
-                      <i className="bi bi-pencil"></i>
-                    </Button>
-                  </Col>
-                  <Col xs={6} className="text-end">
-                    <Button
-                      variant="outline-danger"
-                      size="sm"
-                      onClick={() => handleDeleteGroup(g)}
-                    >
-                      <i className="bi bi-trash"></i>
-                      {lang === 'en' ? 'Delete' : lang === 'tc' ? '刪除' : '删除'}
-                    </Button>
-                  </Col>
-                </Row>
-                <div className="mt-2">
-                  {ids.length === 0
-                    ? <span style={{ color: '#888' }}>
+            ) : (
+              Object.entries(groups).map(([g, ids]) => (
+                <ListGroup.Item key={g}>
+                  <Row>
+                    <Col xs={6}>
+                      <strong>{g}</strong>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={renderTooltip(lang === 'en' ? 'Edit group name' : lang === 'tc' ? '編輯群組名稱' : '编辑群组名称')}
+                      >
+                        <Button
+                          variant="link"
+                          size="sm"
+                          onClick={() => handleEditGroup(g)}
+                          className="ms-2 p-0"
+                        >
+                          <i className="bi bi-pencil" />
+                        </Button>
+                      </OverlayTrigger>
+                    </Col>
+                    <Col xs={6} className="text-end">
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={renderTooltip(lang === 'en' ? 'Delete group' : lang === 'tc' ? '刪除群組' : '删除群组')}
+                      >
+                        <Button
+                          variant="outline-danger"
+                          size="sm"
+                          onClick={() => handleDeleteGroup(g)}
+                        >
+                          <i className="bi bi-trash" />
+                        </Button>
+                      </OverlayTrigger>
+                    </Col>
+                  </Row>
+                  <div className="mt-2">
+                    {ids.length === 0 ? (
+                      <span className="text-muted">
                         {lang === 'en' ? 'No carparks in this group.' : lang === 'tc' ? '此群組沒有車場。' : '此群组没有车场。'}
                       </span>
-                    : ids.map(id => (
+                    ) : (
+                      ids.map(id => (
                         <Badge key={id} bg="secondary" className="me-2 mb-1">
                           {getCarparkName(id, lang, carparkList)}
                           <Button
-                            size="sm"
                             variant="link"
-                            style={{ color: '#fff', textDecoration: 'none', marginLeft: 4, padding: 0 }}
+                            size="sm"
                             onClick={() => handleRemoveFromGroup(g, id)}
+                            style={{ color: 'white', textDecoration: 'none', marginLeft: '4px', padding: 0 }}
                           >
                             ×
                           </Button>
                         </Badge>
-                      ))}
-                </div>
-              </ListGroup.Item>
-            ))}
+                      ))
+                    )}
+                  </div>
+                </ListGroup.Item>
+              ))
+            )}
           </ListGroup>
         </Card.Body>
       </Card>
 
-      {/* 刪除群組確認 Modal */}
+      {/* Delete Confirmation Modal */}
       <Modal show={showConfirm} onHide={() => setShowConfirm(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>
@@ -433,7 +415,7 @@ function Settings({ lang, onLangChange, darkMode, onThemeToggle }) {
         </Modal.Footer>
       </Modal>
 
-      {/* 編輯群組名稱 Modal */}
+      {/* Edit Group Name Modal */}
       <Modal show={showEditModal} onHide={() => setShowEditModal(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>
@@ -447,13 +429,9 @@ function Settings({ lang, onLangChange, darkMode, onThemeToggle }) {
             maxLength={20}
           />
           {editGroupName && groups[editGroupName] && editGroupName !== editGroup && (
-            <div className="text-danger mt-2" style={{ fontSize: '0.9em' }}>
-              {lang === 'en'
-                ? 'Group name already exists.'
-                : lang === 'tc'
-                ? '群組名稱已存在。'
-                : '群组名称已存在。'}
-            </div>
+            <small className="text-danger mt-2 d-block">
+              {lang === 'en' ? 'Group name already exists.' : lang === 'tc' ? '群組名稱已存在。' : '群组名称已存在。'}
+            </small>
           )}
         </Modal.Body>
         <Modal.Footer>
