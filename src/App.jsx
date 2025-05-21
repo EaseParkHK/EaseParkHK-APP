@@ -3,6 +3,7 @@ import Header from './components/Header';
 import Main from './components/Main';
 import CarparkDetail from './components/Carparkdetail';
 import Settings from './components/Settings';
+import District from './components/District';
 import { Routes, Route } from 'react-router-dom';
 
 function App() {
@@ -40,6 +41,8 @@ function App() {
             />
           }
         />
+        <Route path="/district/:district" element={<District />} />
+        <Route path="/district/:region" element={<District />} />
       </Routes>
     </>
   );

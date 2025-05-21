@@ -19,7 +19,7 @@ const STATUS_ORDER = {
   UNKNOWN: 2,
 };
 
-function Main({ lang }) {
+function Main({ lang, filterDistricts, customTitle }) {
   const [carparks, setCarparks] = useState([]);
   const [favorites, setFavorites] = useState(() => JSON.parse(localStorage.getItem('favorite_carparks') || '[]'));
   const [vehicleType, setVehicleType] = useState('P');
@@ -91,6 +91,9 @@ function Main({ lang }) {
               tc: carpark.district_tc,
               sc: carpark.district_sc,
             },
+            district_en: carpark.district_en,
+            district_tc: carpark.district_tc,
+            district_sc: carpark.district_sc,
             contactNo: carpark.contactNo || 'N/A',
             opening_status: carpark.opening_status || 'UNKNOWN',
             latitude: carpark.latitude,
@@ -124,8 +127,18 @@ function Main({ lang }) {
     localStorage.setItem('favorite_carparks', JSON.stringify(newFavs));
   };
 
+  // 加入地區過濾
   const filterCarparks = list =>
     list.filter(carpark => {
+      // 地區過濾
+      if (filterDistricts && filterDistricts.length > 0) {
+        // 支援多語言 district 過濾
+        const districtMatch =
+          filterDistricts.includes(carpark.district_en) ||
+          filterDistricts.includes(carpark.district_tc) ||
+          filterDistricts.includes(carpark.district_sc);
+        if (!districtMatch) return false;
+      }
       if (
         search &&
         !(
@@ -151,10 +164,20 @@ function Main({ lang }) {
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div className="text-center w-100">
           <h1 style={{ fontWeight: 800, letterSpacing: 1, color: '#1a237e', fontSize: '2.2rem' }}>
-            {lang === 'en' ? 'Hong Kong Parking Information' : lang === 'tc' ? '香港停車場資訊' : '香港停车场资讯'}
+            {customTitle
+              ? customTitle
+              : lang === 'en'
+              ? 'Hong Kong Parking Information'
+              : lang === 'tc'
+              ? '香港停車場資訊'
+              : '香港停车场资讯'}
           </h1>
           <p style={{ color: '#607d8b', fontSize: '1.15em', fontWeight: 500 }}>
-            {lang === 'en' ? 'Find real-time parking vacancy and info for all types of vehicles' : lang === 'tc' ? '即時查詢各類車輛停車場空位及資訊' : '实时查询各类车辆停车场空位及资讯'}
+            {lang === 'en'
+              ? 'Find real-time parking vacancy and info for all types of vehicles'
+              : lang === 'tc'
+              ? '即時查詢各類車輛停車場空位及資訊'
+              : '实时查询各类车辆停车场空位及资讯'}
           </p>
         </div>
       </div>
@@ -470,7 +493,7 @@ function CarparkTable({ carparks, vehicleType, onShowMap, onToggleFavorite, favo
         </Table>
       </div>
 
-      {/* 手機 List，無 park_id */}
+      {/* 手機 List */}
       <div className="d-md-none">
         <ListGroup>
           {sortedCarparks.map(carpark => (
