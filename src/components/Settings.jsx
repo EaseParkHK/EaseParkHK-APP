@@ -87,6 +87,13 @@ function Settings({ lang, onLangChange, darkMode, onThemeToggle }) {
   const handleAddFavorite = () => {
     if (carparkId && !favorites.includes(carparkId)) {
       setFavorites([...favorites, carparkId]);
+      // 如果有選擇群組，直接加入
+      if (selectedGroup && groups[selectedGroup] && !groups[selectedGroup].includes(carparkId)) {
+        setGroups({
+          ...groups,
+          [selectedGroup]: [...groups[selectedGroup], carparkId],
+        });
+      }
     }
     setCarparkId('');
   };
@@ -402,8 +409,8 @@ function Settings({ lang, onLangChange, darkMode, onThemeToggle }) {
           {lang === 'en'
             ? `Are you sure you want to delete the group "${groupToDelete}"?`
             : lang === 'tc'
-            ? `確定要刪除群組「${groupToDelete}」嗎？`
-            : `确定要删除群组「${groupToDelete}」吗？`}
+              ? `確定要刪除群組「${groupToDelete}」嗎？`
+              : `确定要删除群组「${groupToDelete}」吗？`}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowConfirm(false)}>

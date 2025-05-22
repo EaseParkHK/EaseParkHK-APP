@@ -6,6 +6,7 @@ import Settings from './components/Settings';
 import District from './components/District';
 import News from './components/News';
 import { Routes, Route } from 'react-router-dom';
+import Cameredistrist from './components/Cameredistrist'; // 新增這行
 
 function App() {
   const [darkMode, setDarkMode] = useState(localStorage.getItem('darkMode') === 'enabled');
@@ -44,9 +45,10 @@ function App() {
             onThemeToggle={() => setDarkMode((prev) => !prev)}
           />
         } />
-        <Route path="/district/:region" element={<District lang={lang} />} />
-        <Route path="/district/:district" element={<District lang={lang} />} />
+        {/* 只保留一個 district 路由 */}
+        <Route path="/district/:key" element={<District lang={lang} />} />
         <Route path="/news" element={<News lang={lang} />} />
+        <Route path="/camera/district/:district" element={<Cameredistrist lang={lang} />} />
       </Routes>
     </>
   );

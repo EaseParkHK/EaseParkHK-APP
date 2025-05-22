@@ -132,56 +132,33 @@ function normalizeDistrictName(name) {
 }
 
 function District({ lang: propLang }) {
-  // 支援 /district/:region 及 /district/:districtName
   const params = useParams();
   const lang = propLang || localStorage.getItem('lang') || 'en';
   const [districts, setDistricts] = useState([]);
   const [title, setTitle] = useState('');
 
   useEffect(() => {
-    // region 支援底線與空格
-    if (params.region) {
-      let regionKey = params.region;
-      if (!REGION_DISTRICTS[regionKey]) {
-        regionKey = normalizeRegionName(regionKey);
-      }
-      if (REGION_DISTRICTS[regionKey]) {
-        setDistricts(REGION_DISTRICTS[regionKey]);
-        // 根據語言顯示正確標題
-        setTitle(
-          REGION_TITLE[regionKey]?.[lang] ||
-          `${REGION_LABELS[regionKey]?.[lang] || regionKey.replace(/_/g, ' ')} Parking Information`
-        );
-        return;
-      }
-    }
-    // district
-    if (params.district) {
-      const decoded = normalizeDistrictName(decodeURIComponent(params.district));
+    let key = params.key;
+    // 先判斷是不是 region
+    if (REGION_DISTRICTS[key]) {
+      setDistricts(REGION_DISTRICTS[key]);
+      setTitle(
+        REGION_TITLE[key]?.[lang] ||
+        (
+          lang === 'en'
+            ? REGION_LABELS[key]?.[lang] || key.replace(/_/g, ' ')
+            : (REGION_LABELS[key]?.[lang] || key.replace(/_/g, ' ')) + '停車場資訊'
+        )
+      );
+    } else {
+      // 否則當作 district
+      const decoded = normalizeDistrictName(decodeURIComponent(key));
       setDistricts([decoded]);
       setTitle(
-        `${DISTRICT_LABELS[decoded]?.[lang] || decoded} Parking Information`
+        lang === 'en'
+          ? (DISTRICT_LABELS[decoded]?.[lang] || decoded)
+          : (DISTRICT_LABELS[decoded]?.[lang] || decoded) + '停車場資訊'
       );
-      return;
-    }
-    // 舊寫法: /district/:key
-    if (params.key) {
-      let regionKey = params.key;
-      if (!REGION_DISTRICTS[regionKey]) {
-        regionKey = normalizeRegionName(regionKey);
-      }
-      if (REGION_DISTRICTS[regionKey]) {
-        setDistricts(REGION_DISTRICTS[regionKey]);
-        setTitle(
-          `${REGION_LABELS[regionKey]?.[lang] || regionKey.replace(/_/g, ' ')} Parking Information`
-        );
-      } else {
-        const decoded = normalizeDistrictName(decodeURIComponent(params.key));
-        setDistricts([decoded]);
-        setTitle(
-          `${DISTRICT_LABELS[decoded]?.[lang] || decoded} Parking Information`
-        );
-      }
     }
   }, [params, lang]);
 

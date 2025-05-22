@@ -18,7 +18,7 @@ const LABELS = {
 
 const regions = [
   {
-    key: 'hkIsland',
+    key: 'hong_kong_island', // 改成和路由一致
     label: (lang) => LABELS[lang].hkIsland,
     to: '/district/hong_kong_island',
     districts: [
@@ -41,7 +41,7 @@ const regions = [
     ],
   },
   {
-    key: 'nt',
+    key: 'new_territories',
     label: (lang) => LABELS[lang].nt,
     to: '/district/new_territories',
     districts: [
@@ -54,6 +54,48 @@ const regions = [
       { key: 'st', label: (lang) => LABELS[lang].st, to: '/district/Sha-Tin' },
       { key: 'sk', label: (lang) => LABELS[lang].sk, to: '/district/Sai-Kung' },
       { key: 'islands', label: (lang) => LABELS[lang].islands, to: '/district/Islands' },
+    ],
+  },
+];
+
+const cameraRegions = [
+  {
+    key: 'hkIsland',
+    label: (lang) => LABELS[lang].hkIsland,
+    to: '/camera/district/hong_kong_island',
+    districts: [
+      { key: 'central', label: (lang) => LABELS[lang].central, to: '/camera/district/Central-Western' },
+      { key: 'wanchai', label: (lang) => LABELS[lang].wanchai, to: '/camera/district/Wan-Chai' },
+      { key: 'eastern', label: (lang) => LABELS[lang].eastern, to: '/camera/district/Eastern' },
+      { key: 'southern', label: (lang) => LABELS[lang].southern, to: '/camera/district/Southern' },
+    ],
+  },
+  {
+    key: 'kowloon',
+    label: (lang) => LABELS[lang].kowloon,
+    to: '/camera/district/kowloon',
+    districts: [
+      { key: 'ytm', label: (lang) => LABELS[lang].ytm, to: '/camera/district/Yau-Tsim-Mong' },
+      { key: 'ssp', label: (lang) => LABELS[lang].ssp, to: '/camera/district/Sham-Shui-Po' },
+      { key: 'kc', label: (lang) => LABELS[lang].kc, to: '/camera/district/Kowloon-City' },
+      { key: 'wts', label: (lang) => LABELS[lang].wts, to: '/camera/district/Wong-Tai-Sin' },
+      { key: 'kt', label: (lang) => LABELS[lang].kt, to: '/camera/district/Kwun-Tong' },
+    ],
+  },
+  {
+    key: 'nt',
+    label: (lang) => LABELS[lang].nt,
+    to: '/camera/district/new_territories',
+    districts: [
+      { key: 'kts', label: (lang) => LABELS[lang].kts, to: '/camera/district/Kwai-Tsing' },
+      { key: 'tw', label: (lang) => LABELS[lang].tw, to: '/camera/district/Tsuen-Wan' },
+      { key: 'yl', label: (lang) => LABELS[lang].yl, to: '/camera/district/Yuen-Long' },
+      { key: 'tm', label: (lang) => LABELS[lang].tm, to: '/camera/district/Tuen-Mun' },
+      { key: 'north', label: (lang) => LABELS[lang].north, to: '/camera/district/North' },
+      { key: 'tp', label: (lang) => LABELS[lang].tp, to: '/camera/district/Tai-Po' },
+      { key: 'st', label: (lang) => LABELS[lang].st, to: '/camera/district/Sha-Tin' },
+      { key: 'sk', label: (lang) => LABELS[lang].sk, to: '/camera/district/Sai-Kung' },
+      { key: 'islands', label: (lang) => LABELS[lang].islands, to: '/camera/district/Islands' },
     ],
   },
 ];
@@ -139,9 +181,49 @@ const Header = ({
     </NavDropdown>
   );
 
+  const renderDesktopCameraDistricts = (
+    <NavDropdown title={LABELS[lang].camera} id="camera-districts-dropdown">
+      {cameraRegions.map(region => (
+        <NavDropdown key={region.key} title={region.label(lang)} id={`camera-${region.key}-dropdown`} drop="end">
+          <NavDropdown.Item as={Link} to={region.to} style={{ fontWeight: 600 }}>
+            {region.label(lang)}
+          </NavDropdown.Item>
+          <NavDropdown.Divider />
+          {region.districts.map(district => (
+            <NavDropdown.Item key={district.key} as={Link} to={district.to}>
+              {district.label(lang)}
+            </NavDropdown.Item>
+          ))}
+        </NavDropdown>
+      ))}
+    </NavDropdown>
+  );
+
   const renderMobileDistricts = (
     <Accordion>
       {regions.map(region => (
+        <Accordion.Item key={region.key} eventKey={region.key}>
+          <Accordion.Header>{region.label(lang)}</Accordion.Header>
+          <Accordion.Body>
+            <Nav className="flex-column">
+              <Nav.Link as={Link} to={region.to} onClick={() => setShowOffcanvas(false)} style={{ fontWeight: 600 }}>
+                {region.label(lang)}
+              </Nav.Link>
+              {region.districts.map(district => (
+                <Nav.Link key={district.key} as={Link} to={district.to} onClick={() => setShowOffcanvas(false)} style={{ paddingLeft: 16 }}>
+                  {district.label(lang)}
+                </Nav.Link>
+              ))}
+            </Nav>
+          </Accordion.Body>
+        </Accordion.Item>
+      ))}
+    </Accordion>
+  );
+
+  const renderMobileCameraDistricts = (
+    <Accordion>
+      {cameraRegions.map(region => (
         <Accordion.Item key={region.key} eventKey={region.key}>
           <Accordion.Header>{region.label(lang)}</Accordion.Header>
           <Accordion.Body>
@@ -174,7 +256,7 @@ const Header = ({
             <Nav className="me-auto">
               {renderDesktopDistricts}
               <Nav.Link as={Link} to="/news">{LABELS[lang].news}</Nav.Link>
-              <Nav.Link as={Link} to="/camera">{LABELS[lang].camera}</Nav.Link>
+              {renderDesktopCameraDistricts}
               <Nav.Link as={Link} to="/settings">{LABELS[lang].settings}</Nav.Link>
             </Nav>
             <Nav>
@@ -215,10 +297,13 @@ const Header = ({
             <h6>{LABELS[lang].districts}</h6>
             {renderMobileDistricts}
           </div>
+          <div className="mb-3">
+            <h6>{LABELS[lang].camera}</h6>
+            {renderMobileCameraDistricts}
+          </div>
           <Nav className="flex-column">
             <Nav.Link as={Link} to="/" onClick={() => setShowOffcanvas(false)}>{LABELS[lang].home}</Nav.Link>
             <Nav.Link as={Link} to="/news" onClick={() => setShowOffcanvas(false)}>{LABELS[lang].news}</Nav.Link>
-            <Nav.Link as={Link} to="/camera" onClick={() => setShowOffcanvas(false)}>{LABELS[lang].camera}</Nav.Link>
             <Nav.Link as={Link} to="/settings" onClick={() => setShowOffcanvas(false)}>{LABELS[lang].settings}</Nav.Link>
           </Nav>
           <div className="mt-3 d-flex align-items-center">
