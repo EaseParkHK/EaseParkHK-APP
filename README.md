@@ -1,5 +1,7 @@
 # EaseParkHK
 
+Th is a React version for https://github.com/easeparkhk/IT114115-FYP-EaseParkHK
+
 [![React 18+](https://img.shields.io/badge/React-18%2B-61dafb?logo=react&logoColor=222)](https://react.dev/)
 [![Powered by data.gov.hk](https://img.shields.io/badge/Powered%20by-data.gov.hk-blue)](https://data.gov.hk/en/)
 [![GPL-3.0 License](https://img.shields.io/github/license/EaseParkHK/EaseParkHK?color=blue)](https://github.com/EaseParkHK/EaseParkHK/blob/main/LICENSE)
